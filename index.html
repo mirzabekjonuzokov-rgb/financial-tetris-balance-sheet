@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Financial Tetris – Balance Sheet Edition</title>
+    <style>
+        /* --- General Styling --- */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f4f7f9; 
+            color: #333; 
+            margin: 0; 
+            padding: 20px; 
+            text-align: center;
+        }
+        .screen { 
+            display: none; 
+            padding: 30px; 
+            max-width: 1000px; 
+            margin: 20px auto; 
+            background: white; 
+            border: 1px solid #ddd; 
+            border-radius: 15px; 
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); 
+        }
+        h1 { color: #00796b; margin-top: 0; }
+        input[type="text"] { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 250px; }
+        button { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; transition: background 0.3s; }
+
+        /* --- Game Grid Layout --- */
+        #game-screen { 
+            display: grid; 
+            grid-template-columns: 1fr 3fr 1fr; /* Block Area, Columns, Controls */
+            gap: 20px; 
+            min-height: 600px;
+        }
+
+        /* --- Column Styles (The playing field) --- */
+        #columns-container {
+            display: flex;
+            justify-content: space-around;
+            background: #e0f7fa; /* Light background for the main area */
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #b2dfdb;
+        }
+        .balance-column {
+            flex-basis: 32%;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+            min-height: 500px;
+            position: relative;
+            overflow: hidden; /* Contains the stacked blocks */
+        }
+        .balance-column h3 {
+            background: #009688;
+            color: white;
+            padding: 8px 0;
+            margin: -10px -10px 10px -10px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* --- Block Styling (The "Tetris" pieces) --- */
+        .falling-block {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: absolute; /* For the current falling block */
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            transition: background 0.2s, border 0.2s, top 0.5s ease-out; /* Smooth transition for placement */
+        }
+        /* Specific block colors */
+        .block-asset { background: #ffe0b2; border: 2px solid #ff9800; }      /* Orange */
+        .block-liability { background: #b3e5fc; border: 2px solid #03a9f4; } /* Blue */
+        .block-equity { background: #c8e6c9; border: 2px solid #4caf50; }    /* Green */
+        .block-default { background: #f0f0f0; border: 2px dashed #ccc; }
+
+        /* --- Placed Block Styling --- */
+        .placed-block {
+            position: relative !important; /* Overrides 'absolute' for placed blocks */
+            box-shadow: none;
+            cursor: default;
+            opacity: 0.9;
+            margin: 3px 0;
+            width: 95%; /* Adjust width for stacking visibility */
+            left: 0;
+            transform: none;
+            transition: none;
+        }
+
+        /* --- Feedback Styles --- */
+        .correct-placement { background: #a5d6a7 !important; border-color: #388e3c !important; }
+        .wrong-placement { background: #ffcdd2 !important; border-color: #d32f2f !important; animation: flash-red 0.5s 3; }
+        @keyframes flash-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* --- Info and Controls Panel --- */
+        #block-area { padding: 10px; border-right: 1px solid #eee; position: relative; }
+        #controls-panel { padding: 10px; border-left: 1px solid #eee; text-align: center; }
+        #controls-panel button { width: 90%; margin: 8px auto; }
+
+        /* Specific Control Buttons */
+        #hint-btn { background: #ffb74d; color: #333; }
+        #hint-btn:hover { background: #ffa000; }
+        #try-again-btn { background: #f44336; color: white; display: none; }
+        #try-again-btn:hover { background: #d32f2f; }
+        #check-balance-btn { background: #2196f3; color: white; }
+        #check-balance-btn:hover { background: #1976d2; }
+
+        /* --- Total Tracker --- */
+        .totals-box { 
+            background: #fff; 
+            padding: 10px; 
+            margin-top: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #ccc;
+            font-weight: bold;
+            text-align: left;
+        }
+        #equation-status { font-size: 1.1em; margin-top: 10px; }
+        .total-value { float: right; color: #00796b; }
+
+        /* --- Score and Progress --- */
+        #score-tracker { margin-top: 20px; font-size: 1.1em; }
+
+        /* --- Hint Pop-up --- */
+        #hint-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background: #fff8e1;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: none;
+            width: 80%;
+            text-align: center;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="start-screen" class="screen" style="display: block;">
+        <h1>Financial Tetris – Balance Sheet Edition</h1>
+        <p>Welcome! Get ready to classify accounts and balance the equation: Assets = Liabilities + Equity.</p>
+        <input type="text" id="playerName" placeholder="Enter your name">
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div id="block-area">
+            <h2>Current Account</h2>
+            <div id="current-block" class="falling-block block-default">Loading...</div>
+            <div id="hint-popup"></div>
+        </div>
+
+        <div id="columns-container">
+            <div id="assets-column" class="balance-column" data-type="Asset">
+                <h3>ASSETS</h3>
+                <div class="column-content"></div>
+                <div class="totals-box">Total: <span class="total-value" id="asset-total">$0</span></div>
+            </div>
+            
+            <div id="liabilities-column" class="balance-column" data-type="Liability">
+                <h3>LIABILITIES</h3>
+                <div class="column-content"></div>
+                <div class="totals-box">Total: <span class="total-value" id="liability-total">$0</span></div>
+            </div>
+            
+            <div id="equity-column" class="balance-column" data-type="Equity">
+                <h3>EQUITY</h3>
+                <div class="column-content"></div>
+                <div class="totals-box">Total: <span class="total-value" id="equity-total">$0</span></div>
+            </div>
+        </div>
+
+        <div id="controls-panel">
+            <h2>Score & Controls</h2>
+            <p id="player-info" style="font-weight: bold;"></p>
+            <div id="score-tracker">Score: <span id="current-score">0</span></div>
+            <div id="progress-tracker">Progress: <span id="current-progress">0</span>/20</div>
+            
+            <hr style="margin: 15px 0;">
+
+            <button id="hint-btn" onclick="showHint()">Hint</button>
+            <button id="try-again-btn" onclick="tryAgain()">Try Again</button>
+            <button id="check-balance-btn" onclick="checkBalance()">Check Balance</button>
+            <div id="equation-status">System Ready...</div>
+
+            <hr style="margin: 15px 0;">
+            <button onclick="resetGame()">Reset Game</button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="screen">
+        <h2>Simulation Complete!</h2>
+        <p id="end-message"></p>
+        <div style="font-size: 1.5em; margin: 20px 0;">Final Score: <span id="final-score"></span></div>
+        <div id="final-rating" style="font-size: 1.2em;"></div>
+        <button onclick="resetGame()">Play Again</button>
+    </div>
+
+    <script>
+        // --- Game Data ---
+        const ACCOUNT_DATA = [
+            { name: "Cash", type: "Asset", value: 5000, hint: "Money available immediately." },
+            { name: "Accounts Receivable", type: "Asset", value: 3000, hint: "Money owed to you by customers." },
+            { name: "Inventory", type: "Asset", value: 7500, hint: "Goods held for sale." },
+            { name: "Equipment", type: "Asset", value: 15000, hint: "Long-term resources used to run the business." },
+            { name: "Notes Receivable", type: "Asset", value: 1000, hint: "A written promise from another party to pay you." },
+            { name: "Prepaid Rent", type: "Asset", value: 800, hint: "Rent paid in advance for future use." },
+            
+            { name: "Accounts Payable", type: "Liability", value: 2000, hint: "Money you owe to suppliers." },
+            { name: "Notes Payable", type: "Liability", value: 6000, hint: "Money you owe to a bank or lender (loan)." },
+            { name: "Wages Payable", type: "Liability", value: 1500, hint: "Salaries owed to employees but not yet paid." },
+            { name: "Unearned Revenue", type: "Liability", value: 2500, hint: "Cash received for a service you still owe the customer." },
+            
+            { name: "Common Stock", type: "Equity", value: 10000, hint: "Capital raised by issuing shares." },
+            { name: "Retained Earnings", type: "Equity", value: 8000, hint: "Cumulative profits kept in the business." },
+            { name: "Dividends Declared", type: "Equity", value: -1000, hint: "Profits paid out to shareholders (reduces Equity)." },
+            { name: "Treasury Stock", type: "Equity", value: -2000, hint: "Shares repurchased by the company (reduces Equity)." },
+            { name: "Additional Paid-in Capital", type: "Equity", value: 3000, hint: "Money paid by investors above the par value of stock." },
+
+            // Additional accounts for a full 20
+            { name: "Land", type: "Asset", value: 20000, hint: "Non-depreciable long-term asset." },
+            { name: "Patents", type: "Asset", value: 4000, hint: "Intangible asset representing exclusive rights." },
+            { name: "Income Tax Payable", type: "Liability", value: 1200, hint: "Tax owed to the government." },
+            { name: "Bonds Payable", type: "Liability", value: 10000, hint: "Long-term debt security." },
+            { name: "Accumulated Depreciation", type: "Asset", value: -3000, hint: "Contra-asset, reduces the value of Equipment." }, 
+        ];
+
+        // --- Game State Variables ---
+        let playerName = '';
+        let currentScore = 0;
+        let blocksPlaced = 0;
+        let currentBlock = null;
+        let transactions = [...ACCOUNT_DATA];
+        let hasUsedHint = false;
+        let hasTriedAgain = false;
+        const totalBlocks = transactions.length;
+
+        // Balance Totals
+        let assetTotal = 0;
+        let liabilityTotal = 0;
+        let equityTotal = 0;
+
+        // --- DOM Elements ---
+        const currentBlockEl = document.getElementById('current-block');
+        const scoreEl = document.getElementById('current-score');
+        const progressEl = document.getElementById('current-progress');
+        const tryAgainBtn = document.getElementById('try-again-btn');
+        const hintPopupEl = document.getElementById('hint-popup');
+
+        // --- Helper Functions ---
+
+        function updateTotalsDisplay() {
+            document.getElementById('asset-total').textContent = `$${assetTotal.toLocaleString()}`;
+            document.getElementById('liability-total').textContent = `$${liabilityTotal.toLocaleString()}`;
+            document.getElementById('equity-total').textContent = `$${equityTotal.toLocaleString()}`;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadNextBlock() {
+            if (transactions.length === 0) {
+                endGame();
+                return;
+            }
+
+            currentBlock = transactions.pop();
+            currentBlockEl.textContent = `${currentBlock.name} $${currentBlock.value.toLocaleString()}`;
+            
+            // Apply specific block style (e.g., color)
+            currentBlockEl.className = `falling-block block-${currentBlock.type.toLowerCase()}`;
+            
+            // Reset state
+            hasUsedHint = false;
+            hasTriedAgain = false;
+            tryAgainBtn.style.display = 'none';
+            hintPopupEl.style.display = 'none';
+        }
+
+        // --- Game Logic ---
+
+        function startGame() {
+            playerName = document.getElementById('playerName').value || 'CFO';
+            document.getElementById('player-info').textContent = `CFO: ${playerName}`;
+
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'grid';
+
+            // Reset scores and totals
+            currentScore = 0;
+            blocksPlaced = 0;
+            assetTotal = 0;
+            liabilityTotal = 0;
+            equityTotal = 0;
+            scoreEl.textContent = currentScore;
+            progressEl.textContent = blocksPlaced;
+            document.getElementById('equation-status').textContent = 'System Ready...';
+            
+            // Clear columns
+            document.querySelectorAll('.column-content').forEach(el => el.innerHTML = '');
+
+            // Shuffle transactions and start
+            transactions = [...ACCOUNT_DATA];
+            shuffleArray(transactions);
+            loadNextBlock();
+            updateTotalsDisplay();
+
+            // Attach click listeners to columns
+            document.querySelectorAll('.balance-column').forEach(column => {
+                column.onclick = () => placeBlock(column);
+            });
+        }
+
+        function placeBlock(column) {
+            if (!currentBlock) return; // Ignore clicks if no block is active
+
+            const columnType = column.getAttribute('data-type');
+            const isCorrect = columnType === currentBlock.type;
+            const blockClass = currentBlockEl.className; // Save original class
+
+            // 1. Placement Feedback
+            if (isCorrect) {
+                // Correct placement
+                let points = hasTriedAgain ? 5 : 10;
+                currentScore += points;
+                scoreEl.textContent = currentScore;
+
+                // Update column total
+                const value = currentBlock.value;
+                if (columnType === 'Asset') assetTotal += value;
+                else if (columnType === 'Liability') liabilityTotal += value;
+                else if (columnType === 'Equity') equityTotal += value;
+
+                // Finalize block style and move to column
+                currentBlockEl.classList.add('correct-placement', 'placed-block');
+                currentBlockEl.classList.remove('falling-block'); // Remove falling styles
+                currentBlockEl.style.transition = 'none'; // Stop block animation
+                
+                // Clone the block into the column content
+                const placedBlock = currentBlockEl.cloneNode(true);
+                placedBlock.onclick = null; // Disable clicking placed blocks
+                column.querySelector('.column-content').prepend(placedBlock);
+
+                // Reset current block for the next one
+                blocksPlaced++;
+                progressEl.textContent = blocksPlaced;
+                updateTotalsDisplay();
+                loadNextBlock(); // Load the next block
+            } else {
+                // Incorrect placement
+                currentBlockEl.classList.add('wrong-placement');
+                tryAgainBtn.style.display = 'block';
+
+                // Revert style after animation
+                setTimeout(() => {
+                    currentBlockEl.classList.remove('wrong-placement');
+                }, 1500); 
+            }
+        }
+        
+        function tryAgain() {
+            hasTriedAgain = true;
+            tryAgainBtn.style.display = 'none';
+            hintPopupEl.style.display = 'none';
+            document.getElementById('equation-status').textContent = 'Hint: The block is back in place. Try again!';
+        }
+
+        function showHint() {
+            if (!currentBlock) return;
+            hasUsedHint = true;
+            hintPopupEl.innerHTML = `**Hint:** ${currentBlock.name} → **${currentBlock.type}** (because ${currentBlock.hint}).`;
+            hintPopupEl.style.display = 'block';
+            document.getElementById('equation-status').textContent = 'Hint used!';
+            
+            // Hide after a few seconds
+            setTimeout(() => {
+                hintPopupEl.style.display = 'none';
+            }, 4000);
+        }
+
+        function checkBalance() {
+            const totalLiabilitiesEquity = liabilityTotal + equityTotal;
+            const statusEl = document.getElementById('equation-status');
+
+            if (assetTotal === totalLiabilitiesEquity) {
+                statusEl.innerHTML = 'System Stable ✅ (Assets = Liabilities + Equity)';
+                statusEl.style.color = '#4caf50';
+            } else {
+                statusEl.innerHTML = `System Error ⚠️ (Assets $${assetTotal.toLocaleString()} ≠ L+E $${totalLiabilitiesEquity.toLocaleString()})`;
+                statusEl.style.color = '#f44336';
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+
+            const score = currentScore;
+            let rating = '';
+
+            if (score >= 180) rating = 'Balance Master 🏆';
+            else if (score >= 150) rating = 'Accounting Ace 💼';
+            else if (score >= 120) rating = 'Ledger Learner 📚';
+            else rating = 'Try Again 🔄';
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-rating').textContent = `Rating: ${rating}`;
+            document.getElementById('end-message').textContent = `Congratulations, ${playerName}! You classified all ${totalBlocks} accounts.`;
+        }
+
+        function resetGame() {
+            document.getElementById('start-screen').style.display = 'block';
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('playerName').value = '';
+            
+            // Clear current block display
+            currentBlockEl.textContent = 'Loading...';
+            currentBlockEl.className = 'falling-block block-default';
+            
+            // Reset button states
+            tryAgainBtn.style.display = 'none';
+            hintPopupEl.style.display = 'none';
+            
+            // Re-initialize state
+            currentBlock = null;
+            transactions = [...ACCOUNT_DATA];
+        }
+
+        // Initial setup on load
+        document.addEventListener('DOMContentLoaded', () => {
+             // Initialize click handlers for columns once
+             document.querySelectorAll('.balance-column').forEach(column => {
+                column.onclick = () => placeBlock(column);
+            });
+            updateTotalsDisplay();
+        });
+    </script>
+</body>
+</html>
