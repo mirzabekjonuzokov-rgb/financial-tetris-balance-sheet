@@ -53,7 +53,8 @@
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
             min-height: 500px;
             position: relative;
-            overflow: hidden; /* Contains the stacked blocks */
+            overflow: hidden; 
+            transition: background 0.3s; 
         }
         .balance-column h3 {
             background: #009688;
@@ -61,6 +62,16 @@
             padding: 8px 0;
             margin: -10px -10px 10px -10px;
             border-radius: 8px 8px 0 0;
+        }
+        
+        /* Visual feedback style */
+        .flash-correct {
+            background-color: #e8f5e9 !important; 
+            animation: flash 0.5s ease-out;
+        }
+        @keyframes flash {
+            0% { background-color: #a5d6a7; }
+            100% { background-color: #fff; }
         }
 
         /* --- Block Styling (The "Tetris" pieces) --- */
@@ -72,27 +83,27 @@
             text-align: center;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            position: absolute; /* For the current falling block */
+            position: absolute; 
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
             width: 80%;
-            transition: background 0.2s, border 0.2s, top 0.5s ease-out; /* Smooth transition for placement */
+            transition: background 0.2s, border 0.2s, top 0.5s ease-out; 
         }
         /* Specific block colors */
-        .block-asset { background: #ffe0b2; border: 2px solid #ff9800; }      /* Orange */
-        .block-liability { background: #b3e5fc; border: 2px solid #03a9f4; } /* Blue */
-        .block-equity { background: #c8e6c9; border: 2px solid #4caf50; }    /* Green */
+        .block-asset { background: #ffe0b2; border: 2px solid #ff9800; }     
+        .block-liability { background: #b3e5fc; border: 2px solid #03a9f4; } 
+        .block-equity { background: #c8e6c9; border: 2px solid #4caf50; }    
         .block-default { background: #f0f0f0; border: 2px dashed #ccc; }
 
         /* --- Placed Block Styling --- */
         .placed-block {
-            position: relative !important; /* Overrides 'absolute' for placed blocks */
+            position: relative !important; 
             box-shadow: none;
             cursor: default;
             opacity: 0.9;
             margin: 3px 0;
-            width: 95%; /* Adjust width for stacking visibility */
+            width: 95%; 
             left: 0;
             transform: none;
             transition: none;
@@ -100,11 +111,11 @@
 
         /* --- Feedback Styles --- */
         .correct-placement { background: #a5d6a7 !important; border-color: #388e3c !important; }
-        .wrong-placement { background: #ffcdd2 !important; border-color: #d32f2f !important; animation: flash-red 0.5s 3; }
-        @keyframes flash-red {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        /* Style for auto-corrected/mistake blocks */
+        .wrong-placement { 
+            background: #ffcdd2 !important; 
+            border: 3px solid #d32f2f !important; /* Thicker red border to emphasize mistake */
+        } 
 
         /* --- Info and Controls Panel --- */
         #block-area { padding: 10px; border-right: 1px solid #eee; position: relative; }
@@ -114,8 +125,6 @@
         /* Specific Control Buttons */
         #hint-btn { background: #ffb74d; color: #333; }
         #hint-btn:hover { background: #ffa000; }
-        #try-again-btn { background: #f44336; color: white; display: none; }
-        #try-again-btn:hover { background: #d32f2f; }
         #check-balance-btn { background: #2196f3; color: white; }
         #check-balance-btn:hover { background: #1976d2; }
 
@@ -129,36 +138,145 @@
             font-weight: bold;
             text-align: left;
         }
-        #equation-status { font-size: 1.1em; margin-top: 10px; }
+        #equation-status { 
+            font-size: 1.1em; 
+            margin-top: 10px; 
+            min-height: 40px; 
+        }
         .total-value { float: right; color: #00796b; }
 
         /* --- Score and Progress --- */
         #score-tracker { margin-top: 20px; font-size: 1.1em; }
 
-        /* --- Hint Pop-up --- */
-        #hint-popup {
+        /* --- Hint & Definitions Pop-up Style --- */
+        .popup {
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            display: none;
+        }
+        .popup-content {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 20px;
-            background: #fff8e1;
-            border: 2px solid #ffc107;
+            padding: 30px;
+            background: #fff;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+            text-align: left;
+        }
+        .popup-content h2 { color: #00796b; margin-top: 0; }
+        .popup-content p { margin: 5px 0; }
+        .popup-close {
+            float: right;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            color: #d32f2f;
+        }
+        /* Custom styling for instructions/hints */
+        .highlight {
+            font-weight: 700;
+            color: #00796b; 
+        }
+        .warning {
+            font-weight: 700;
+            color: #f44336; 
+        }
+        #current-hint-popup {
+            position: absolute;
+            top: 150px; 
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 15px;
+            background: #e3f2fd; 
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             z-index: 100;
             display: none;
-            width: 80%;
+            width: 90%;
             text-align: center;
         }
+
+        /* --- Leaderboard Specific Styles --- */
+        #leaderboard-container {
+            margin-top: 30px;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+            max-height: 400px; 
+            overflow-y: auto; 
+        }
+        #leaderboard-list {
+            list-style: none;
+            padding: 0;
+            max-width: 450px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        #leaderboard-list li {
+            background: #e0f2f1;
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            display: grid;
+            grid-template-columns: 50px 1fr 80px 80px; 
+            align-items: center;
+            font-weight: 600;
+            color: #004d40;
+        }
+        .rank-number { font-weight: bold; font-size: 1.1em; color: #00796b;}
+        .rank-date { font-size: 0.8em; color: #555; text-align: right;}
+        .rank-score { font-weight: bold; color: #d32f2f; text-align: right;}
+
+        /* Highlighting Top 3 */
+        #leaderboard-list li:first-child { background: #ffcc80; } 
+        #leaderboard-list li:nth-child(2) { background: #e0e0e0; }
+        #leaderboard-list li:nth-child(3) { background: #ffab91; }
         
     </style>
 </head>
 <body>
+    <div id="definitions-popup" class="popup" onclick="hideDefinitions()">
+        <div class="popup-content" onclick="event.stopPropagation()">
+            <span class="popup-close" onclick="hideDefinitions()">&times;</span>
+            <h2>Key Accounting Concepts 🔑</h2>
+            <hr>
+            <p><strong>Assets:</strong> Economic resources owned by a business that are expected to provide future benefit (e.g., Cash, Equipment).</p>
+            <p><strong>Liabilities:</strong> Obligations of a business to transfer assets or provide services to others in the future (e.g., Accounts Payable, Loans).</p>
+            <p><strong>Equity:</strong> The residual interest in the assets of the entity after deducting liabilities (the owner's claim on the assets, e.g., Common Stock, Retained Earnings).</p>
+            <p><strong>The Accounting Equation:</strong> Assets = Liabilities + Equity.</p>
+        </div>
+    </div>
+
+
     <div id="start-screen" class="screen" style="display: block;">
         <h1>Financial Tetris – Balance Sheet Edition</h1>
-        <p>Welcome! Get ready to classify accounts and balance the equation: Assets = Liabilities + Equity.</p>
-        <input type="text" id="playerName" placeholder="Enter your name">
+        <p>Get ready, <strong class="highlight">CFO</strong>! Your mission is to perfectly classify all accounts and keep the balance sheet equation intact.</p>
+        
+        <hr style="width: 50%; margin: 20px auto;">
+
+        <h2>How to Play:</h2>
+        <ol style="max-width: 600px; margin: 0 auto; text-align: left;">
+            <li>A financial account and its value will appear as the <strong class="highlight">Current Account</strong>.</li>
+            <li>Click the Assets, Liabilities, or Equity column to place the block.</li>
+            <li>Correct placement = +10 points! 🥳 (You also get an explanation!)</li>
+            <li>Mistake: The block is auto-corrected (placed in red), and the correct column will flash green for learning. You only earn +5 points for the penalty and you'll see why it was a mistake.</li>
+            <li>Use the Hint button at any time for -2 points.</li>
+            <li>Press Check Balance to verify your equation (no penalty).</li>
+        </ol>
+
+        <hr style="width: 50%; margin: 20px auto;">
+        
+        <input type="text" id="playerName" placeholder="Enter your name (e.g., Jane Doe)">
+        <button onclick="showDefinitions()" style="background: #ccc; color: #333;">Concept Definitions</button>
         <button onclick="startGame()">Start Game</button>
     </div>
 
@@ -166,8 +284,7 @@
         <div id="block-area">
             <h2>Current Account</h2>
             <div id="current-block" class="falling-block block-default">Loading...</div>
-            <div id="hint-popup"></div>
-        </div>
+            <div id="current-hint-popup"></div> </div>
 
         <div id="columns-container">
             <div id="assets-column" class="balance-column" data-type="Asset">
@@ -197,8 +314,7 @@
             
             <hr style="margin: 15px 0;">
 
-            <button id="hint-btn" onclick="showHint()">Hint</button>
-            <button id="try-again-btn" onclick="tryAgain()">Try Again</button>
+            <button id="hint-btn" onclick="showHint()">Hint (-2 pts)</button>
             <button id="check-balance-btn" onclick="checkBalance()">Check Balance</button>
             <div id="equation-status">System Ready...</div>
 
@@ -210,8 +326,21 @@
     <div id="end-screen" class="screen">
         <h2>Simulation Complete!</h2>
         <p id="end-message"></p>
-        <div style="font-size: 1.5em; margin: 20px 0;">Final Score: <span id="final-score"></span></div>
+        <div style="font-size: 1.5em; margin: 20px 0;">
+            Final Score: <span id="final-score"></span> / <span id="max-possible-score"></span>
+        </div>
         <div id="final-rating" style="font-size: 1.2em;"></div>
+        
+        <div id="leaderboard-container">
+            <h3>📈 All Recorded Scores 📊</h3>
+            <div style="display: grid; grid-template-columns: 50px 1fr 80px 80px; max-width: 450px; margin: 0 auto; font-weight: bold; color: #00796b; border-bottom: 1px solid #00796b; padding-bottom: 5px;">
+                <span>Rank</span>
+                <span>Name</span>
+                <span style="text-align: right;">Score</span>
+                <span style="text-align: right;">Date</span>
+            </div>
+            <ol id="leaderboard-list"></ol>
+        </div>
         <button onclick="resetGame()">Play Again</button>
     </div>
 
@@ -236,7 +365,6 @@
             { name: "Treasury Stock", type: "Equity", value: -2000, hint: "Shares repurchased by the company (reduces Equity)." },
             { name: "Additional Paid-in Capital", type: "Equity", value: 3000, hint: "Money paid by investors above the par value of stock." },
 
-            // Additional accounts for a full 20
             { name: "Land", type: "Asset", value: 20000, hint: "Non-depreciable long-term asset." },
             { name: "Patents", type: "Asset", value: 4000, hint: "Intangible asset representing exclusive rights." },
             { name: "Income Tax Payable", type: "Liability", value: 1200, hint: "Tax owed to the government." },
@@ -251,8 +379,8 @@
         let currentBlock = null;
         let transactions = [...ACCOUNT_DATA];
         let hasUsedHint = false;
-        let hasTriedAgain = false;
         const totalBlocks = transactions.length;
+        const maxPossibleScore = totalBlocks * 10; 
 
         // Balance Totals
         let assetTotal = 0;
@@ -263,8 +391,10 @@
         const currentBlockEl = document.getElementById('current-block');
         const scoreEl = document.getElementById('current-score');
         const progressEl = document.getElementById('current-progress');
-        const tryAgainBtn = document.getElementById('try-again-btn');
-        const hintPopupEl = document.getElementById('hint-popup');
+        const conceptHintPopupEl = document.getElementById('current-hint-popup');
+        const definitionsPopupEl = document.getElementById('definitions-popup');
+        const allColumns = document.querySelectorAll('.balance-column');
+        const leaderboardListEl = document.getElementById('leaderboard-list');
 
         // --- Helper Functions ---
 
@@ -290,14 +420,82 @@
             currentBlock = transactions.pop();
             currentBlockEl.textContent = `${currentBlock.name} $${currentBlock.value.toLocaleString()}`;
             
-            // Apply specific block style (e.g., color)
             currentBlockEl.className = `falling-block block-${currentBlock.type.toLowerCase()}`;
             
-            // Reset state
             hasUsedHint = false;
-            hasTriedAgain = false;
-            tryAgainBtn.style.display = 'none';
-            hintPopupEl.style.display = 'none';
+            conceptHintPopupEl.style.display = 'none';
+        }
+
+        // --- Definitions/Hint Functions ---
+
+        function showDefinitions() {
+            definitionsPopupEl.style.display = 'block';
+        }
+
+        function hideDefinitions() {
+            definitionsPopupEl.style.display = 'none';
+        }
+        
+        function showHint() {
+            if (!currentBlock || hasUsedHint) return;
+            
+            hasUsedHint = true;
+            currentScore -= 2; 
+            scoreEl.textContent = currentScore;
+            
+            // Format the hint display
+            document.getElementById('equation-status').innerHTML = `🚨 Penalty! You lost 2 points. Hint: <strong class="warning">${currentBlock.name} is a ${currentBlock.type} (because ${currentBlock.hint}).</strong>`;
+            
+            setTimeout(() => {
+                document.getElementById('equation-status').textContent = 'System Ready... 🚀';
+            }, 5000);
+        }
+
+        // --- Leaderboard Functions ---
+
+        const STORAGE_KEY = 'financialTetrisLeaderboard';
+
+        function getLeaderboard() {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            try {
+                return storedData ? JSON.parse(storedData) : [];
+            } catch (e) {
+                console.error("Error parsing leaderboard data:", e);
+                return [];
+            }
+        }
+
+        function saveScore(name, score) {
+            const leaderboard = getLeaderboard();
+            const date = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
+            
+            leaderboard.push({ name, score, date });
+            
+            // Sort by score (descending)
+            leaderboard.sort((a, b) => b.score - a.score);
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(leaderboard));
+        }
+
+        function displayLeaderboard() {
+            const leaderboard = getLeaderboard(); 
+            leaderboardListEl.innerHTML = ''; 
+
+            if (leaderboard.length === 0) {
+                leaderboardListEl.innerHTML = '<li>No scores recorded yet! Be the first!</li>';
+                return;
+            }
+
+            leaderboard.forEach((record, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span class="rank-number">${index + 1}</span>
+                    <span>${record.name}</span>
+                    <span class="rank-score">${record.score} pts</span>
+                    <span class="rank-date">${record.date}</span>
+                `;
+                leaderboardListEl.appendChild(listItem);
+            });
         }
 
         // --- Game Logic ---
@@ -305,11 +503,11 @@
         function startGame() {
             playerName = document.getElementById('playerName').value || 'CFO';
             document.getElementById('player-info').textContent = `CFO: ${playerName}`;
+            hideDefinitions(); 
 
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'grid';
 
-            // Reset scores and totals
             currentScore = 0;
             blocksPlaced = 0;
             assetTotal = 0;
@@ -317,88 +515,90 @@
             equityTotal = 0;
             scoreEl.textContent = currentScore;
             progressEl.textContent = blocksPlaced;
-            document.getElementById('equation-status').textContent = 'System Ready...';
+            document.getElementById('equation-status').textContent = 'System Ready... 🚀';
             
-            // Clear columns
             document.querySelectorAll('.column-content').forEach(el => el.innerHTML = '');
 
-            // Shuffle transactions and start
             transactions = [...ACCOUNT_DATA];
             shuffleArray(transactions);
             loadNextBlock();
             updateTotalsDisplay();
 
-            // Attach click listeners to columns
-            document.querySelectorAll('.balance-column').forEach(column => {
+            allColumns.forEach(column => {
                 column.onclick = () => placeBlock(column);
             });
         }
 
-        function placeBlock(column) {
-            if (!currentBlock) return; // Ignore clicks if no block is active
+        function placeBlock(clickedColumn) {
+            if (!currentBlock) return; 
 
-            const columnType = column.getAttribute('data-type');
-            const isCorrect = columnType === currentBlock.type;
-            const blockClass = currentBlockEl.className; // Save original class
+            const clickedType = clickedColumn.getAttribute('data-type');
+            const correctType = currentBlock.type;
+            const isCorrect = clickedType === correctType;
+            let finalColumn = clickedColumn;
+            let points = 0;
+            let isMistake = false;
 
-            // 1. Placement Feedback
             if (isCorrect) {
-                // Correct placement
-                let points = hasTriedAgain ? 5 : 10;
-                currentScore += points;
-                scoreEl.textContent = currentScore;
-
-                // Update column total
-                const value = currentBlock.value;
-                if (columnType === 'Asset') assetTotal += value;
-                else if (columnType === 'Liability') liabilityTotal += value;
-                else if (columnType === 'Equity') equityTotal += value;
-
-                // Finalize block style and move to column
-                currentBlockEl.classList.add('correct-placement', 'placed-block');
-                currentBlockEl.classList.remove('falling-block'); // Remove falling styles
-                currentBlockEl.style.transition = 'none'; // Stop block animation
+                // Correct placement: 10 points
+                points = 10;
+                document.getElementById('equation-status').innerHTML = `✅ BINGO! Perfect placement! (+10 pts) This is correct because: <strong class="highlight">${currentBlock.hint}</strong>.`;
                 
-                // Clone the block into the column content
-                const placedBlock = currentBlockEl.cloneNode(true);
-                placedBlock.onclick = null; // Disable clicking placed blocks
-                column.querySelector('.column-content').prepend(placedBlock);
-
-                // Reset current block for the next one
-                blocksPlaced++;
-                progressEl.textContent = blocksPlaced;
-                updateTotalsDisplay();
-                loadNextBlock(); // Load the next block
             } else {
-                // Incorrect placement
-                currentBlockEl.classList.add('wrong-placement');
-                tryAgainBtn.style.display = 'block';
-
-                // Revert style after animation
+                // Incorrect placement - AUTO-CORRECT: 5 points (penalty)
+                isMistake = true;
+                points = 5; 
+                
+                // Find the correct column element
+                finalColumn = document.querySelector(`.balance-column[data-type="${correctType}"]`);
+                
+                // Show the reason for the mistake using the hint
+                document.getElementById('equation-status').innerHTML = `❌ Mistake! (-5 pts) It is a **${correctType}** because: <strong class="warning">${currentBlock.hint}</strong>.`;
+                
+                // Flash the correct column
+                finalColumn.classList.add('flash-correct');
                 setTimeout(() => {
-                    currentBlockEl.classList.remove('wrong-placement');
-                }, 1500); 
+                    finalColumn.classList.remove('flash-correct');
+                }, 800);
             }
-        }
-        
-        function tryAgain() {
-            hasTriedAgain = true;
-            tryAgainBtn.style.display = 'none';
-            hintPopupEl.style.display = 'none';
-            document.getElementById('equation-status').textContent = 'Hint: The block is back in place. Try again!';
-        }
-
-        function showHint() {
-            if (!currentBlock) return;
-            hasUsedHint = true;
-            hintPopupEl.innerHTML = `**Hint:** ${currentBlock.name} → **${currentBlock.type}** (because ${currentBlock.hint}).`;
-            hintPopupEl.style.display = 'block';
-            document.getElementById('equation-status').textContent = 'Hint used!';
             
-            // Hide after a few seconds
-            setTimeout(() => {
-                hintPopupEl.style.display = 'none';
-            }, 4000);
+            // 1. Update Score
+            currentScore += points;
+            scoreEl.textContent = currentScore;
+            hasUsedHint = false; 
+
+            // 2. Update column total
+            const value = currentBlock.value;
+            const columnType = finalColumn.getAttribute('data-type');
+
+            if (columnType === 'Asset') assetTotal += value;
+            else if (columnType === 'Liability') liabilityTotal += value;
+            else if (columnType === 'Equity') equityTotal += value;
+
+            // 3. Finalize block style and move to column
+            let placedBlock = currentBlockEl.cloneNode(true);
+            
+            placedBlock.classList.add('placed-block');
+            placedBlock.classList.remove('falling-block');
+            placedBlock.style.transition = 'none';
+            placedBlock.onclick = null; 
+
+            if (isMistake) {
+                placedBlock.classList.add('wrong-placement');
+            } else {
+                placedBlock.classList.add('correct-placement');
+            }
+            
+            finalColumn.querySelector('.column-content').prepend(placedBlock);
+
+            // 4. Load Next Block
+            blocksPlaced++;
+            progressEl.textContent = blocksPlaced;
+            updateTotalsDisplay();
+            
+            // Clear current block and load next
+            currentBlock = null; 
+            loadNextBlock(); 
         }
 
         function checkBalance() {
@@ -406,12 +606,13 @@
             const statusEl = document.getElementById('equation-status');
 
             if (assetTotal === totalLiabilitiesEquity) {
-                statusEl.innerHTML = 'System Stable ✅ (Assets = Liabilities + Equity)';
+                statusEl.innerHTML = '✨ PERFECT BALANCE! Assets = Liabilities + Equity. ✨';
                 statusEl.style.color = '#4caf50';
             } else {
-                statusEl.innerHTML = `System Error ⚠️ (Assets $${assetTotal.toLocaleString()} ≠ L+E $${totalLiabilitiesEquity.toLocaleString()})`;
+                statusEl.innerHTML = `🛑 UNBALANCED! Assets $${assetTotal.toLocaleString()} ≠ L+E $${totalLiabilitiesEquity.toLocaleString()}. Find the error!`;
                 statusEl.style.color = '#f44336';
             }
+            setTimeout(() => { statusEl.style.color = '#333'; }, 5000); // Reset color
         }
 
         function endGame() {
@@ -421,14 +622,21 @@
             const score = currentScore;
             let rating = '';
 
-            if (score >= 180) rating = 'Balance Master 🏆';
-            else if (score >= 150) rating = 'Accounting Ace 💼';
-            else if (score >= 120) rating = 'Ledger Learner 📚';
-            else rating = 'Try Again 🔄';
+            // Save the score
+            saveScore(playerName, score);
+
+            if (score >= maxPossibleScore - 10) rating = 'BALANCE MASTER 🏆 (Outstanding!)'; 
+            else if (score >= maxPossibleScore * 0.75) rating = 'ACCOUNTING ACE 💼 (Excellent!)'; 
+            else if (score >= maxPossibleScore * 0.60) rating = 'LEDGER LEARNER 📚 (Good Job!)'; 
+            else rating = 'NEEDS REVIEW 🔄 (Keep Practicing!)';
 
             document.getElementById('final-score').textContent = score;
+            document.getElementById('max-possible-score').textContent = maxPossibleScore; 
             document.getElementById('final-rating').textContent = `Rating: ${rating}`;
-            document.getElementById('end-message').textContent = `Congratulations, ${playerName}! You classified all ${totalBlocks} accounts.`;
+            document.getElementById('end-message').textContent = `Congratulations, ${playerName}! You completed the Balance Sheet Simulation!`;
+
+            // Display all recorded scores
+            displayLeaderboard();
         }
 
         function resetGame() {
@@ -437,23 +645,19 @@
             document.getElementById('end-screen').style.display = 'none';
             document.getElementById('playerName').value = '';
             
-            // Clear current block display
             currentBlockEl.textContent = 'Loading...';
             currentBlockEl.className = 'falling-block block-default';
             
-            // Reset button states
-            tryAgainBtn.style.display = 'none';
-            hintPopupEl.style.display = 'none';
+            conceptHintPopupEl.style.display = 'none';
+            definitionsPopupEl.style.display = 'none'; 
             
-            // Re-initialize state
             currentBlock = null;
             transactions = [...ACCOUNT_DATA];
         }
 
         // Initial setup on load
         document.addEventListener('DOMContentLoaded', () => {
-             // Initialize click handlers for columns once
-             document.querySelectorAll('.balance-column').forEach(column => {
+            allColumns.forEach(column => {
                 column.onclick = () => placeBlock(column);
             });
             updateTotalsDisplay();
