@@ -13,7 +13,7 @@
             border: 6px solid #1e3a8a; 
             background: linear-gradient(to bottom, #eff6ff 0%, #ffffff 100%); 
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            touch-action: manipulation; 
+            touch-action: none; /* Disable default touch actions */
             min-height: 200px;
         }
         .text-shadow-light {
@@ -40,8 +40,22 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 90%;
-            max-width: 450px;
+            max-width: 550px;
             z-index: 50;
+        }
+        
+        .char-card {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .char-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .char-card.selected {
+            border-color: #065f46;
+            background-color: #ecfdf5;
+            box-shadow: 0 0 0 4px #065f46;
         }
 
         .scoreboard {
@@ -139,29 +153,60 @@
         const FLOATING_TEXTS = []; 
         let backgroundScroll = { city: 0, hills: 0, road: 0 };
         
-        // Player Jump Physics constants
+        // Base Jump Physics constants
         const INITIAL_JUMP_STRENGTH = -30;
-        const BOOST_JUMP_STRENGTH = -45; // Significantly higher jump
+        const BOOST_JUMP_STRENGTH = -45; // Jump boost effect
+        const SPEED_BOOST_FACTOR = 1.6; // Speed boost effect
+
+        const characterTemplates = {
+            'CEO': {
+                name: 'The CEO',
+                emoji: '👔',
+                baseSpeed: 4.5,
+                baseJumpStrength: INITIAL_JUMP_STRENGTH,
+                incomeMultiplier: 1.0,
+                desc: 'Balanced leadership. Ready for anything.'
+            },
+            'TECH_LEAD': {
+                name: 'The Tech Lead',
+                emoji: '💻',
+                baseSpeed: 5.5, // Faster base speed
+                baseJumpStrength: -25, // Shorter jump
+                incomeMultiplier: 1.0,
+                desc: 'Fast-paced, high execution speed. Needs momentum.'
+            },
+            'ACCOUNTANT': {
+                name: 'The Accountant',
+                emoji: '🧮',
+                baseSpeed: 3.5, // Slower base speed
+                baseJumpStrength: INITIAL_JUMP_STRENGTH,
+                incomeMultiplier: 1.5, // 50% revenue bonus
+                desc: 'Calculated and meticulous. Maximizes every dollar.'
+            }
+        };
+
 
         let gameState = {
             playerName: 'CEO',
+            selectedCharacterKey: 'CEO', // Track active character
             isRunning: false,
             netIncome: 0,
             strikes: 0,
-            gameSpeed: 6, // Base speed
-            itemSpawnRate: 1500, // Initial time in ms
+            baseSpeed: characterTemplates['CEO'].baseSpeed,
+            gameSpeed: characterTemplates['CEO'].baseSpeed, 
+            itemSpawnRate: 1500, 
             lastTime: 0,
             timeSinceLastItem: 0,
             animationFrameId: null,
             maxStrikes: 3,
             
-            // Invincibility Power-up State
+            // Power-up States
             isInvincible: false, 
             invincibilityTimer: 0, 
-
-            // NEW Jump Boost State
             isJumpBoosted: false, 
-            jumpBoostTimer: 0
+            jumpBoostTimer: 0,
+            isSpeedBoosted: false,
+            speedBoostTimer: 0
         };
 
         const player = {
@@ -169,12 +214,11 @@
             y: GROUND_Y - 50,
             width: 50,
             height: 50,
-            color: '#10b981', 
             isJumping: false,
             isDucking: false,
             yVelocity: 0,
             gravity: 1.8,
-            jumpStrength: INITIAL_JUMP_STRENGTH, // Uses variable now
+            jumpStrength: INITIAL_JUMP_STRENGTH, 
             initialHeight: 50,
             duckHeight: 25
         };
@@ -182,26 +226,77 @@
         const items = [];
         const itemTemplates = [
             // Revenue (Collectibles)
-            // MODIFIED: 'Sales' now grants a jump boost
-            { type: 'Revenue', label: 'Sales', value: 150, color: '#fcd34d', isCollectible: true, width: 30, height: 30, yOffset: 130, draw: drawCoin, isJumpBoost: true },
-            { type: 'Revenue', label: 'Service', value: 50, color: '#f59e0b', isCollectible: true, width: 25, height: 25, yOffset: 90, draw: drawCoin },
+            // Sales coin grants a JUMP boost
+            { type: 'Revenue', label: 'Sales', value: 150, emoji: '💵', color: '#fcd34d', isCollectible: true, width: 30, height: 30, yOffset: 130, draw: drawEmoji, isJumpBoost: true },
+            // Stock Gain grants a SPEED boost (New item)
+            { type: 'Revenue', label: 'Stock Gain', value: 200, emoji: '📈', color: '#4ade80', isCollectible: true, width: 35, height: 35, yOffset: 90, draw: drawEmoji, isSpeedBoost: true, spawnChance: 0.1 },
+            // Dividends (Standard coin)
+            { type: 'Revenue', label: 'Dividends', value: 50, emoji: '💰', color: '#f59e0b', isCollectible: true, width: 25, height: 25, yOffset: 90, draw: drawEmoji },
             
             // COGS (Obstacles)
-            { type: 'COGS', label: 'Materials', value: -75, color: '#9d3110', isCollectible: false, width: 35, height: 50, yOffset: 50, draw: drawJaggedObstacle },
-            { type: 'COGS', label: 'Labor', value: -50, color: '#b45309', isCollectible: false, width: 30, height: 40, yOffset: 40, draw: drawJaggedObstacle },
-
+            // Server Crash (New Ground Obstacle)
+            { type: 'COGS', label: 'Server Crash', value: -100, emoji: '⚠️', color: '#9d3110', isCollectible: false, width: 45, height: 45, yOffset: 50, draw: drawEmoji },
+            
             // Operating Expenses (Obstacles)
-            { type: 'OpEx', label: 'Rent', value: -150, color: '#dc2626', isCollectible: false, width: 40, height: 20, yOffset: 100, draw: drawFlyingArrow },
-            { type: 'OpEx', label: 'Marketing', value: -75, color: '#f87171', isCollectible: false, width: 35, height: 18, yOffset: 120, draw: drawFlyingArrow },
+            // Debt Interest (New Flying Obstacle)
+            { type: 'OpEx', label: 'Debt Interest', value: -150, emoji: '📉', color: '#dc2626', isCollectible: false, width: 40, height: 40, yOffset: 120, draw: drawEmoji },
 
             // Major Loss (Strike)
-            { type: 'MajorLoss', label: 'Lawsuit', value: -500, color: '#7f1d1d', isCollectible: false, width: 60, height: 60, isMajor: true, strike: true, yOffset: 60, draw: drawMajorLossX },
+            { type: 'MajorLoss', label: 'Market Turmoil', value: -500, emoji: '💥', color: '#7f1d1d', isCollectible: false, width: 60, height: 60, isMajor: true, strike: true, yOffset: 60, draw: drawEmoji },
             
-            // Power-up (Tax Refund) - Invincibility
-            { type: 'PowerUp', label: 'Tax Refund!', value: 500, color: '#2563eb', isCollectible: true, width: 40, height: 40, yOffset: 150, draw: drawPowerUp, isPowerUp: true, spawnChance: 0.03 } 
+            // Power-up (Invincibility)
+            { type: 'PowerUp', label: 'Tax Shield', value: 500, emoji: '🛡️', color: '#2563eb', isCollectible: true, width: 40, height: 40, yOffset: 150, draw: drawEmoji, isPowerUp: true, spawnChance: 0.03 } 
         ];
 
-        // --- DRAWING SHAPES ---
+        // --- DRAWING SHAPES (using Emojis for fun design) ---
+        
+        function drawEmoji(item) {
+            ctx.save();
+            ctx.font = `${item.width}px Arial`; 
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(item.emoji, item.x + item.width / 2, item.y + item.height / 2);
+            ctx.restore();
+        }
+
+        function drawPlayer() {
+            ctx.save();
+            
+            let emoji = characterTemplates[gameState.selectedCharacterKey].emoji;
+            let size = player.width * 1.5; 
+            let yOffset = player.y + player.height;
+
+            if (gameState.isInvincible) {
+                // Pulse effect for Invincibility
+                const pulse = gameState.invincibilityTimer % 150 < 75;
+                const auraColor = pulse ? '#3b82f6' : '#fde047';
+                ctx.fillStyle = auraColor;
+                ctx.beginPath();
+                ctx.arc(player.x + player.width / 2, yOffset - player.height / 2, player.width * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (gameState.isJumpBoosted) {
+                // Up arrow effect for Jump Boost
+                ctx.font = '20px Inter';
+                ctx.fillStyle = '#fde047';
+                ctx.textAlign = 'center';
+                ctx.fillText('⬆️', player.x + player.width / 2, player.y - 10);
+            } else if (gameState.isSpeedBoosted) {
+                // Bolt effect for Speed Boost
+                ctx.font = '20px Inter';
+                ctx.fillStyle = '#4ade80';
+                ctx.textAlign = 'center';
+                ctx.fillText('⚡', player.x + player.width / 2, player.y - 10);
+            }
+
+
+            // Draw the Character Emoji
+            ctx.font = `${size}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(emoji, player.x + player.width / 2, yOffset);
+            
+            ctx.restore();
+        }
 
         function drawParallaxBackground() {
             const width = canvas.width;
@@ -210,199 +305,34 @@
             // 1. Distant City/Horizon (Slowest)
             const cityColor = '#4b5563';
             const cityY = GROUND_Y - 150;
-            const citySpeed = gameState.gameSpeed * 0.1; 
+            const citySpeed = gameState.gameSpeed * 0.05; // Slower parallax
             backgroundScroll.city -= citySpeed;
             if (backgroundScroll.city <= -width) backgroundScroll.city += width;
 
             ctx.fillStyle = cityColor;
             for (let i = 0; i < 2; i++) {
                 const x = backgroundScroll.city + i * width;
+                // Simplified drawing of buildings
                 ctx.fillRect(x + 50, cityY - 20, 30, 20);
                 ctx.fillRect(x + 100, cityY - 60, 40, 60);
-                ctx.fillRect(x + 180, cityY - 40, 20, 40);
                 ctx.fillRect(x + 300, cityY - 80, 50, 80);
-                ctx.fillRect(x + 400, cityY - 30, 25, 30);
-                ctx.fillRect(x + 550, cityY - 70, 40, 70);
             }
 
             // 2. Rolling Hills (Medium Speed)
             const hillColor = '#6b7280';
             const hillY = GROUND_Y - 40;
-            const hillSpeed = gameState.gameSpeed * 0.3;
+            const hillSpeed = gameState.gameSpeed * 0.15;
             backgroundScroll.hills -= hillSpeed;
             if (backgroundScroll.hills <= -width) backgroundScroll.hills += width;
             
             ctx.fillStyle = hillColor;
-            ctx.beginPath();
-            ctx.moveTo(backgroundScroll.hills, hillY);
+            // Draw simple rounded hills
             for (let i = 0; i < 3; i++) {
-                const x = backgroundScroll.hills + i * (width / 2);
-                ctx.bezierCurveTo(x + 50, hillY - 30, x + 150, hillY - 30, x + 200, hillY);
+                 const x = backgroundScroll.hills + i * (width / 2);
+                 ctx.beginPath();
+                 ctx.arc(x, hillY, 150, 0, Math.PI, true);
+                 ctx.fill();
             }
-            ctx.lineTo(backgroundScroll.hills + 2 * width, height);
-            ctx.lineTo(backgroundScroll.hills, height);
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        function drawBusinessIcon(x, y, w, h) {
-            ctx.save();
-            
-            let primaryColor = '#10b981'; 
-            let accentColor = '#065f46'; 
-            
-            if (gameState.isInvincible) {
-                const pulse = gameState.invincibilityTimer % 150 < 75;
-                primaryColor = pulse ? '#fcd34d' : '#3b82f6'; 
-                accentColor = pulse ? '#d97706' : '#1e40af'; 
-            } else if (gameState.isJumpBoosted) {
-                 const pulse = gameState.jumpBoostTimer % 100 < 50;
-                 primaryColor = pulse ? '#fde047' : '#10b981'; // Quick yellow flash
-                 accentColor = pulse ? '#d97706' : '#065f46';
-            }
-
-            // 1. Base Structure (Foundation)
-            ctx.fillStyle = accentColor; 
-            ctx.fillRect(x, y + h * 0.8, w, h * 0.2); 
-
-            // 2. Body/Tower with Gradient
-            const gradient = ctx.createLinearGradient(x, y, x + w, y + h);
-            gradient.addColorStop(0, primaryColor);
-            gradient.addColorStop(1, accentColor);
-            ctx.fillStyle = gradient;
-            ctx.fillRect(x + 5, y, w - 10, h * 0.8);
-            
-            // 3. Roofline/Profit Spike
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(x + 5, y + h * 0.2);
-            ctx.lineTo(x + w / 2, y);
-            ctx.lineTo(x + w - 5, y + h * 0.2);
-            ctx.stroke();
-
-            ctx.restore();
-        }
-
-        function drawCoin(item) {
-            ctx.save();
-            ctx.translate(item.x + item.width / 2, item.y + item.height / 2);
-            ctx.rotate(gameState.lastTime / 100); 
-
-            // Golden gradient coin
-            const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, item.width / 2);
-            gradient.addColorStop(0, '#fde047');
-            gradient.addColorStop(1, item.color);
-
-            ctx.beginPath();
-            ctx.arc(0, 0, item.width / 2, 0, Math.PI * 2);
-            ctx.fillStyle = gradient;
-            ctx.fill();
-            
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.font = 'bold 16px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('$', 0, 5);
-
-            ctx.restore();
-        }
-        
-        function drawPowerUp(item) {
-            ctx.save();
-            ctx.translate(item.x + item.width / 2, item.y + item.height / 2);
-            ctx.rotate(-gameState.lastTime / 200); 
-
-            // Blue energy diamond
-            ctx.fillStyle = '#3b82f6'; 
-            ctx.strokeStyle = 'white'; 
-            ctx.lineWidth = 2;
-            
-            const r = item.width / 2;
-            
-            ctx.beginPath();
-            ctx.moveTo(0, -r);
-            ctx.lineTo(r, 0);
-            ctx.lineTo(0, r);
-            ctx.lineTo(-r, 0);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.fillStyle = 'white';
-            ctx.font = 'bold 18px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText('⚡', 0, 7); 
-
-            ctx.restore();
-        }
-
-        function drawJaggedObstacle(item) {
-            ctx.fillStyle = item.color;
-            ctx.beginPath();
-            
-            ctx.moveTo(item.x, item.y + item.height);
-            ctx.lineTo(item.x + item.width, item.y + item.height);
-            ctx.lineTo(item.x + item.width * 0.9, item.y);
-            ctx.lineTo(item.x + item.width * 0.7, item.y + item.height * 0.5);
-            ctx.lineTo(item.x + item.width * 0.5, item.y);
-            ctx.lineTo(item.x + item.width * 0.3, item.y + item.height * 0.5);
-            ctx.lineTo(item.x + item.width * 0.1, item.y);
-            ctx.closePath();
-            ctx.fill();
-            
-            ctx.strokeStyle = '#374151';
-            ctx.stroke();
-        }
-
-        function drawFlyingArrow(item) {
-            ctx.fillStyle = item.color;
-            ctx.save();
-            ctx.translate(item.x + item.width / 2, item.y + item.height / 2);
-            ctx.rotate(0.1); 
-            
-            // Arrow Body
-            ctx.fillRect(-item.width / 2, -item.height / 4, item.width * 0.8, item.height / 2);
-
-            // Arrow Head
-            ctx.beginPath();
-            ctx.moveTo(item.width * 0.3, -item.height / 2);
-            ctx.lineTo(item.width / 2, 0);
-            ctx.lineTo(item.width * 0.3, item.height / 2);
-            ctx.closePath();
-            ctx.fill();
-            
-            ctx.restore();
-        }
-
-        function drawMajorLossX(item) {
-            ctx.strokeStyle = item.color;
-            ctx.lineWidth = 12;
-            
-            ctx.beginPath();
-            ctx.moveTo(item.x, item.y);
-            ctx.lineTo(item.x + item.width, item.y + item.height);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(item.x + item.width, item.y);
-            ctx.lineTo(item.x, item.y + item.height);
-            ctx.stroke();
-
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(item.x + item.width * 0.1, item.y + item.height * 0.1);
-            ctx.lineTo(item.x + item.width * 0.9, item.y + item.height * 0.9);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(item.x + item.width * 0.9, item.y + item.height * 0.1);
-            ctx.lineTo(item.x + item.width * 0.1, item.y + item.height * 0.9);
-            ctx.stroke();
-        }
-        
-        function drawPlayer() {
-            drawBusinessIcon(player.x, player.y, player.width, player.height);
         }
 
         function drawGround() {
@@ -431,13 +361,17 @@
 
         function drawItems() {
             items.forEach(item => {
-                item.draw(item);
+                // Call the generic emoji drawing function
+                drawEmoji(item);
                 
                 // Draw label/value
                 ctx.fillStyle = item.value > 0 ? '#059669' : '#b91c1c'; 
                 ctx.font = 'bold 10px Inter';
                 ctx.textAlign = 'center';
-                const displayText = item.value > 0 ? `+${item.value}` : `${item.value}`;
+                const baseValue = Math.abs(item.value);
+                const actualValue = item.isCollectible ? baseValue * characterTemplates[gameState.selectedCharacterKey].incomeMultiplier : baseValue;
+                const displayText = item.value > 0 ? `+$${Math.round(actualValue)}` : `-$${Math.round(actualValue)}`;
+                
                 ctx.fillText(item.label, item.x + item.width / 2, item.y - 15);
                 ctx.fillText(displayText, item.x + item.width / 2, item.y - 5);
             });
@@ -463,7 +397,8 @@
 
 
         function updateScoreboard() {
-            playerNameDisplay.textContent = `Player: ${gameState.playerName}`;
+            const char = characterTemplates[gameState.selectedCharacterKey];
+            playerNameDisplay.textContent = `Player: ${char.emoji} ${gameState.playerName}`;
             netIncomeDisplay.textContent = `Net Income: $${gameState.netIncome.toLocaleString()}`;
             strikesDisplay.textContent = `Losses: ${gameState.strikes} / ${gameState.maxStrikes}`;
 
@@ -481,12 +416,15 @@
                  netIncomeDisplay.textContent += ` (🛡️ ${Math.ceil(gameState.invincibilityTimer / 1000)}s)`;
             } else if (gameState.isJumpBoosted) {
                  netIncomeDisplay.textContent += ` (⬆️ ${Math.ceil(gameState.jumpBoostTimer / 1000)}s)`;
+            } else if (gameState.isSpeedBoosted) {
+                 netIncomeDisplay.textContent += ` (⚡ ${Math.ceil(gameState.speedBoostTimer / 1000)}s)`;
             }
         }
 
         // --- GAME MECHANICS ---
 
         function spawnItem() {
+            // Determine spawn probability based on power-up chances
             let availableTemplates = itemTemplates.filter(t => !t.isPowerUp || Math.random() < (t.spawnChance || 0.05));
             if (availableTemplates.length === 0) availableTemplates = itemTemplates.filter(t => !t.isPowerUp); 
 
@@ -504,6 +442,7 @@
         }
 
         function checkCollision(item) {
+            // Check collision between player bounding box and item bounding box
             return (
                 player.x < item.x + item.width &&
                 player.x + player.width > item.x &&
@@ -520,6 +459,9 @@
 
         function handleItemEffect(item) {
             item.collected = true;
+            const char = characterTemplates[gameState.selectedCharacterKey];
+            let actualValue = item.value;
+            let effectLabel = item.label;
 
             // Invincibility check: If invincible, only process positive effects
             if (!item.isCollectible && gameState.isInvincible) {
@@ -533,22 +475,29 @@
                 triggerVibration(50); 
                 return;
             }
-
-            // Normal effect processing
-            gameState.netIncome += item.value;
             
-            const textValue = item.value > 0 ? `+$${item.value}` : `-$${Math.abs(item.value)}`;
-            const textColor = item.value > 0 ? 'rgba(16, 185, 129' : 'rgba(239, 68, 68';
+            // Apply multiplier for collectibles (Revenue)
+            if (item.isCollectible) {
+                actualValue = Math.round(item.value * char.incomeMultiplier);
+            }
+
+            // Apply value change to Net Income
+            gameState.netIncome += actualValue;
+            
+            // Create floating text feedback
+            const textValue = actualValue > 0 ? `+$${actualValue}` : `-$${Math.abs(actualValue)}`;
+            const textColor = actualValue > 0 ? 'rgba(16, 185, 129' : 'rgba(239, 68, 68';
 
             FLOATING_TEXTS.push({ 
                 x: player.x + player.width / 2, 
                 y: player.y, 
-                text: `${item.label} ${textValue}`, 
+                text: `${effectLabel} ${textValue}`, 
                 color: textColor, 
                 life: 120 
             });
 
 
+            // --- POWER UP EFFECTS ---
             if (item.isPowerUp) {
                 // Invincibility Power-up
                 gameState.isInvincible = true;
@@ -557,14 +506,14 @@
                 FLOATING_TEXTS.push({ 
                     x: player.x + player.width / 2, 
                     y: player.y - 40, 
-                    text: 'INVINCIBLE!', 
+                    text: 'SHIELD ACTIVE!', 
                     color: 'rgba(59, 130, 246', 
                     life: 180 
                 });
             }
             
             if (item.isJumpBoost) {
-                // Jump Boost Power-up
+                // Jump Boost Power-up (from Sales)
                 gameState.isJumpBoosted = true;
                 gameState.jumpBoostTimer = 3000; // 3 seconds boost
                 player.jumpStrength = BOOST_JUMP_STRENGTH;
@@ -577,6 +526,22 @@
                     life: 180 
                 });
             }
+            
+            if (item.isSpeedBoost) {
+                // Speed Boost Power-up (from Stock Gain)
+                gameState.isSpeedBoosted = true;
+                gameState.speedBoostTimer = 3000; // 3 seconds boost
+                gameState.gameSpeed = gameState.baseSpeed * SPEED_BOOST_FACTOR;
+                triggerVibration(100); 
+                FLOATING_TEXTS.push({ 
+                    x: player.x + player.width / 2, 
+                    y: player.y - 40, 
+                    text: 'SPEED BOOST!', 
+                    color: 'rgba(74, 222, 128', 
+                    life: 180 
+                });
+            }
+
 
             if (item.strike) {
                 gameState.strikes++;
@@ -617,6 +582,7 @@
             gameState.timeSinceLastItem += deltaTime;
             if (gameState.timeSinceLastItem > gameState.itemSpawnRate) {
                 spawnItem();
+                // Spawn rate is inversely proportional to current game speed
                 gameState.itemSpawnRate = Math.random() * 800 + 800 - (gameState.gameSpeed * 10);
                 gameState.timeSinceLastItem = 0;
             }
@@ -651,8 +617,23 @@
                 if (gameState.jumpBoostTimer <= 0) {
                     gameState.isJumpBoosted = false;
                     gameState.jumpBoostTimer = 0;
-                    // Reset jump strength to normal
-                    player.jumpStrength = INITIAL_JUMP_STRENGTH; 
+                    // Reset jump strength to character's base strength
+                    player.jumpStrength = characterTemplates[gameState.selectedCharacterKey].baseJumpStrength; 
+                }
+            }
+        }
+        
+        function updateSpeedBoost(deltaTime) {
+            if (gameState.isSpeedBoosted) {
+                gameState.speedBoostTimer -= deltaTime;
+                if (gameState.speedBoostTimer <= 0) {
+                    gameState.isSpeedBoosted = false;
+                    gameState.speedBoostTimer = 0;
+                    // Reset game speed to character's current base speed (which includes gradual acceleration)
+                    gameState.gameSpeed = gameState.baseSpeed;
+                } else {
+                    // Keep game speed boosted while active, but allow gradual base speed increase to still affect the overall velocity
+                    gameState.gameSpeed = gameState.baseSpeed * SPEED_BOOST_FACTOR;
                 }
             }
         }
@@ -663,7 +644,7 @@
         function jump() {
             if (!player.isJumping && gameState.isRunning) {
                 player.isJumping = true;
-                player.yVelocity = player.jumpStrength; // Uses dynamic jumpStrength
+                player.yVelocity = player.jumpStrength; 
                 player.isDucking = false;
                 triggerVibration(20);
             }
@@ -699,15 +680,17 @@
 
         // Mobile Touch Controls
         canvas.addEventListener('touchstart', (e) => {
+            if (!gameState.isRunning) return;
             e.preventDefault();
-            const touchY = e.touches[0].clientY - canvas.getBoundingClientRect().top;
+            const rect = canvas.getBoundingClientRect();
+            const touchY = e.touches[0].clientY - rect.top;
             
             if (touchY < canvas.height / 2) {
                 jump();
             } else {
                 duck();
             }
-        });
+        }, { passive: false });
         
         canvas.addEventListener('touchend', (e) => {
             e.preventDefault();
@@ -738,18 +721,60 @@
                     <input type="text" id="nameInput" placeholder="Your Name" value="${gameState.playerName}" 
                            class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-500 text-center font-bold text-gray-800">
                 `,
-                'Continue to Rules',
+                'Choose Your Role',
                 () => {
                     const name = document.getElementById('nameInput').value.trim();
                     if (name) {
                         gameState.playerName = name.substring(0, 15);
-                        showRules();
+                        showCharacterSelection();
                     } else {
                         messageBox.querySelector('p').innerHTML = '<p class="text-red-500 mb-4 font-bold">Please enter a name to start!</p>';
                     }
                 }
             );
         }
+        
+        function showCharacterSelection() {
+            let characterCards = '';
+            let selectedKey = gameState.selectedCharacterKey;
+
+            Object.keys(characterTemplates).forEach(key => {
+                const char = characterTemplates[key];
+                const isSelected = key === selectedKey ? 'selected' : '';
+                
+                characterCards += `
+                    <div class="char-card ${isSelected} p-4 border-2 border-gray-200 rounded-xl text-center" data-key="${key}">
+                        <div class="text-5xl mb-2">${char.emoji}</div>
+                        <h4 class="text-xl font-bold text-gray-800">${char.name}</h4>
+                        <p class="text-sm text-gray-500 mt-1 h-10">${char.desc}</p>
+                    </div>
+                `;
+            });
+            
+            const selectionHTML = `
+                <p class="text-lg mb-4 text-gray-700">Select your financial role:</p>
+                <div id="characterGrid" class="grid grid-cols-3 gap-4">
+                    ${characterCards}
+                </div>
+            `;
+            
+            showOverlay(
+                'Choose Your Champion',
+                selectionHTML,
+                'View Rules',
+                showRules
+            );
+            
+            // Add click listeners for character selection
+            document.querySelectorAll('.char-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    gameState.selectedCharacterKey = card.dataset.key;
+                });
+            });
+        }
+
 
         function showRules() {
             const rulesHTML = `
@@ -757,10 +782,11 @@
                     <p class="text-xl text-teal-600 font-extrabold text-center">Quarterly Objectives (Rules):</p>
                     <ul class="list-disc list-inside space-y-2 pl-4">
                         <li>💰 **Revenue (Coins):** **Jump (Tap Top)** to collect. Increases Net Income.</li>
-                        <li>🚀 **Sales (Yellow Coin):** Grants high revenue AND a temporary **Jump Boost**!</li>
-                        <li>🧱 **COGS/Expenses (Spikes/Arrows):** **Avoid** by Jumping or Ducking.</li>
-                        <li>🟦 **Tax Refund (Blue Diamond):** Grants a bonus and temporary **Invincibility**.</li>
-                        <li>❌ **Major Losses:** Hitting one gives you **1 Strike** (Max 3).</li>
+                        <li>🚀 **Sales (💵):** Grants high revenue AND a temporary **Jump Boost** (Higher Jump).</li>
+                        <li>⚡ **Stock Gain (📈):** Grants high revenue AND a temporary **Speed Boost** (Faster Running).</li>
+                        <li>🧱 **Expenses (⚠️/📉):** **Avoid** by Jumping or Ducking.</li>
+                        <li>🛡️ **Tax Shield (Blue Diamond):** Grants bonus revenue and temporary **Invincibility**.</li>
+                        <li>💥 **Major Losses:** Hitting one gives you **1 Strike** (Max 3).</li>
                     </ul>
                     <p class="text-base text-red-600 font-bold mt-4 text-center">Goal: Maximize Net Income!</p>
                 </div>
@@ -781,7 +807,7 @@
             
             const scoreboardHTML = `
                 <div class="p-4 rounded-lg bg-gray-100 border border-gray-300">
-                    <p class="text-xl font-bold text-gray-800">${gameState.playerName}'s Final Results:</p>
+                    <p class="text-xl font-bold text-gray-800">${gameState.playerName}'s Final Results (${characterTemplates[gameState.selectedCharacterKey].name}):</p>
                     <h3 class="text-5xl font-extrabold ${finalScoreClass} my-4">$${gameState.netIncome.toLocaleString()}</h3>
                     <p class="text-base text-gray-600">${reason}</p>
                     <p class="text-sm text-red-500 mt-2">Total Major Losses: ${gameState.strikes}</p>
@@ -791,7 +817,7 @@
             showOverlay(
                 'Quarter Ended!',
                 scoreboardHTML,
-                'Restart Business',
+                'Restart Business (Keep Character)',
                 startGame
             );
         }
@@ -803,9 +829,12 @@
         }
 
         function resetGame() {
+            const char = characterTemplates[gameState.selectedCharacterKey];
+
             gameState.netIncome = 0;
             gameState.strikes = 0;
-            gameState.gameSpeed = 6;
+            gameState.baseSpeed = char.baseSpeed;
+            gameState.gameSpeed = char.baseSpeed; 
             gameState.lastTime = 0;
             gameState.timeSinceLastItem = 0;
             
@@ -814,7 +843,10 @@
             gameState.invincibilityTimer = 0;
             gameState.isJumpBoosted = false;
             gameState.jumpBoostTimer = 0;
-            player.jumpStrength = INITIAL_JUMP_STRENGTH; 
+            gameState.isSpeedBoosted = false;
+            gameState.speedBoostTimer = 0;
+            
+            player.jumpStrength = char.baseJumpStrength; // Set player's base jump strength based on character
 
             items.length = 0;
             FLOATING_TEXTS.length = 0;
@@ -848,12 +880,23 @@
 
             // 1. Update Game State
             updateInvincibility(deltaTime);
-            updateJumpBoost(deltaTime); // Process jump boost timer
+            updateJumpBoost(deltaTime); 
+            updateSpeedBoost(deltaTime); // NEW: Update speed boost
             updatePlayer();
             updateItems(deltaTime);
             updateScoreboard();
             
-            gameState.gameSpeed += 0.5 * dtSeconds; 
+            // Gradual acceleration is applied to the BASE speed
+            gameState.baseSpeed += 0.3 * dtSeconds; 
+            
+            // If not speed boosted, the gameSpeed equals the accelerating baseSpeed
+            if (!gameState.isSpeedBoosted) {
+                gameState.gameSpeed = gameState.baseSpeed;
+            } else {
+                // If speed boosted, update the boosted speed based on the accelerating baseSpeed
+                gameState.gameSpeed = gameState.baseSpeed * SPEED_BOOST_FACTOR;
+            }
+
 
             // 2. Clear Canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
