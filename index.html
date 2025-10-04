@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Income Statement Audit Challenge</title>
+    <title>Income Statement Audit Challenge - Comprehensive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900;700&display=swap');
+
         /* Tailwind-inspired base styling and custom design */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #fffbeb; /* Very Light Yellow/Cream background */
+            background-color: #f7f9fc; /* Light background */
             margin: 0;
             padding: 20px;
             color: #1f2937; /* Dark text */
@@ -22,10 +22,10 @@
             background-color: #ffffff;
             padding: 30px;
             border-radius: 16px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #f59e0b; /* Amber color for emphasis */
+            color: #0d9488; /* Teal color for emphasis */
             text-align: center;
             margin-bottom: 25px;
             font-size: 2.5em;
@@ -34,12 +34,12 @@
         h2 {
             font-size: 1.5em;
             font-weight: 800;
-            color: #b45309;
+            color: #0f766e;
         }
 
         /* --- Global Button Styling --- */
         .primary-btn {
-            background-color: #f59e0b;
+            background-color: #0d9488;
             color: white;
             padding: 12px 24px;
             border: none;
@@ -47,31 +47,31 @@
             font-size: 1.1em;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
-            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3);
             font-weight: 700;
         }
         .primary-btn:hover {
-            background-color: #d97706;
+            background-color: #0f766e;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 6px 12px rgba(13, 148, 136, 0.4);
         }
         .check-btn {
-            background-color: #10b981; /* Green Check Button */
+            background-color: #3b82f6; /* Blue Check Button */
             color: white;
             padding: 15px 30px;
             font-size: 1.2em;
-            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
             margin-top: 20px;
         }
         .check-btn:hover {
-            background-color: #059669;
+            background-color: #2563eb;
         }
 
         /* Hint Button Style */
         .hint-btn {
             background: none;
-            border: 1px solid #f59e0b;
-            color: #f59e0b;
+            border: 1px solid #0d9488;
+            color: #0d9488;
             border-radius: 50%;
             width: 24px;
             height: 24px;
@@ -85,9 +85,8 @@
             align-items: center;
         }
         .hint-btn:hover {
-            background-color: #fef3c7;
+            background-color: #ccfbf1;
         }
-
 
         /* --- Start Screen --- */
         #start-screen {
@@ -96,7 +95,7 @@
         }
         #name-input {
             padding: 10px;
-            border: 2px solid #f59e0b;
+            border: 2px solid #0d9488;
             border-radius: 6px;
             width: 80%;
             max-width: 300px;
@@ -105,8 +104,8 @@
             text-align: center;
         }
         .rules-box {
-            background-color: #fef3c7;
-            border: 1px solid #f59e0b;
+            background-color: #ecfdf5;
+            border: 1px solid #0d9488;
             border-radius: 8px;
             padding: 20px;
             margin-top: 30px;
@@ -118,23 +117,23 @@
             display: none;
         }
         .statement-container {
-            border: 2px solid #fef3c7;
+            border: 2px solid #ccfbf1;
             padding: 20px;
             border-radius: 12px;
             background-color: #fff;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
-        
+
         /* Statement Sections */
         .statement-section {
             margin-bottom: 25px;
             padding: 15px;
-            border-bottom: 1px solid #fde68a;
+            border-bottom: 1px solid #99f6e4;
         }
         .section-title {
             font-size: 1.4em;
             font-weight: 800;
-            color: #b45309;
+            color: #0f766e;
             margin-bottom: 10px;
             padding-bottom: 5px;
         }
@@ -153,7 +152,7 @@
         .item-details {
             display: flex;
             align-items: center;
-            gap: 10px; /* Space between hint button and value */
+            gap: 10px;
         }
 
         /* Styles for clickable/error items */
@@ -161,14 +160,14 @@
              cursor: pointer;
         }
 
-        /* Classification Error (Yellow) */
+        /* Classification Error (Yellow Dashed) */
         .line-item[data-status="classification-error"] {
-            background-color: #fef9c3; 
-            border: 1px solid #f59e0b;
-            box-shadow: 0 0 5px rgba(245, 158, 11, 0.5);
+            background-color: #fef9c3; /* Light yellow */
+            border: 2px dashed #eab308; /* Yellow dashed border */
+            box-shadow: 0 0 5px rgba(234, 179, 8, 0.5);
         }
         .line-item[data-status="classification-error"]:hover {
-            background-color: #fcd34d;
+            background-color: #fde047;
             transform: translateY(-1px);
         }
 
@@ -177,16 +176,21 @@
             background-color: #fee2e2; /* Light red/pink background */
             border: 2px dashed #dc2626; /* Red dashed border */
             box-shadow: 0 0 5px rgba(220, 38, 38, 0.5);
-            animation: pulse 1.5s infinite;
         }
         .line-item[data-status="numerical-error"]:hover {
             background-color: #fca5a5;
             transform: translateY(-1px);
         }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.005); }
-            100% { transform: scale(1); }
+
+        /* Mixed Error (Purple Dashed) */
+        .line-item[data-status="mixed-error"] {
+            background-color: #f3e8ff; /* Light purple */
+            border: 2px dashed #a855f7; /* Purple dashed border */
+            box-shadow: 0 0 5px rgba(168, 85, 247, 0.5);
+        }
+        .line-item[data-status="mixed-error"]:hover {
+            background-color: #e9d5ff;
+            transform: translateY(-1px);
         }
 
         /* Fixed Items (Green) */
@@ -204,18 +208,18 @@
             padding: 10px 15px;
             margin-top: 5px;
             margin-bottom: 15px;
-            border-top: 2px double #f59e0b;
+            border-top: 2px double #0d9488;
             display: flex;
             justify-content: space-between;
-            background-color: #fef3c7;
+            background-color: #ccfbf1;
             border-radius: 4px;
         }
         .net-income {
             font-weight: 800;
             font-size: 1.5em;
             background-color: #fff;
-            border: 3px solid #f59e0b; /* Start with amber border */
-            color: #b45309;
+            border: 3px solid #0d9488; /* Start with teal border */
+            color: #0f766e;
             margin-top: 20px;
             padding: 15px;
             text-align: center;
@@ -252,22 +256,23 @@
             animation: fadeIn 0.3s;
         }
         .modal-content h3 {
-            color: #b45309;
+            color: #0f766e;
             margin-top: 0;
-            border-bottom: 2px solid #fef3c7;
+            border-bottom: 2px solid #ccfbf1;
             padding-bottom: 10px;
         }
         .category-option {
             display: block;
             margin: 10px 0;
             padding: 10px;
-            border: 1px solid #f59e0b;
+            border: 1px solid #0d9488;
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.1s;
+            font-weight: 600;
         }
         .category-option:hover {
-            background-color: #fef3c7;
+            background-color: #ccfbf1;
         }
         .modal-close-btn {
             float: right;
@@ -277,106 +282,140 @@
             cursor: pointer;
             color: #9ca3af;
         }
-        
-        /* Hint Modal Specific Styles */
-        #hint-content {
-            padding: 10px 0;
-            font-size: 1.05em;
-            line-height: 1.4;
+
+        /* Input Styles */
+        .modal-input {
+            padding: 10px;
+            border: 2px solid #3b82f6;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-size: 1.1em;
         }
 
-
-        /* Feedback and Score */
-        #feedback {
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-            background-color: #fef3c7;
-        }
-
-        /* --- Results Screen --- */
+        /* Results Screen */
         #results-screen {
             display: none;
             text-align: center;
-            padding: 50px;
+            padding: 50px 0;
         }
         .score-card {
-            background-color: #ecfdf5; /* Light green */
-            border: 4px solid #10b981;
+            background-color: #ecfdf5;
+            border: 4px solid #0d9488;
             border-radius: 12px;
             padding: 30px;
             margin-top: 30px;
             display: inline-block;
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 10px 20px rgba(13, 148, 136, 0.2);
         }
         .score-item {
             font-weight: 600;
         }
-        #results-net-income {
-            font-size: 1.8em;
+        
+        /* Debrief Styles */
+        #audit-debrief {
+            margin-top: 40px;
+            text-align: left;
+            padding: 20px;
+            border-top: 2px solid #0d9488;
+        }
+        .debrief-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .debrief-table th, .debrief-table td {
+            border: 1px solid #e0f2f1;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .debrief-table th {
+            background-color: #0d9488;
+            color: white;
+            font-weight: 700;
+        }
+        .debrief-table tr:nth-child(even) {
+            background-color: #f0fdfa;
+        }
+        .highlight-tax {
+            background-color: #ffedd5; /* Light orange for tax calculation */
+            border: 2px solid #f97316;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
             margin-top: 20px;
-            font-weight: 800;
-            color: #065f46;
         }
         
-        /* Mobile Responsiveness */
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-            .total-line, .line-item {
-                font-size: 1em;
-            }
+        /* Modal Feedback Style for better visibility */
+        .feedback-error {
+            background-color: #fef2f2; /* Light red background */
+            color: #dc2626; /* Strong red text */
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #f87171;
+            font-weight: 700;
+            animation: pulse-red 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse-red {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.01); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        
-        <!-- Start Screen (Input Name and Rules) -->
+
+        <!-- Start Screen -->
         <div id="start-screen">
-            <h1>Audit Challenge: Find the Mistake 🕵️</h1>
-            <h2>Income Statement Edition</h2>
-            
-            <p style="font-size:1.1em; margin-bottom:10px;">Enter your name to start your junior auditor assignment:</p>
-            <input type="text" id="name-input" placeholder="Your Name" value="Junior Auditor" maxlength="30">
-            
-            <button class="primary-btn" onclick="startChallenge()">Start Audit</button>
+            <h1>Level 3: Comprehensive Audit 🤯</h1>
+            <h2>Find ALL 9 Hidden Errors</h2>
+
+            <p style="font-size:1.1em; margin-bottom:10px;">Enter your name to start the most complex assignment:</p>
+            <input type="text" id="name-input" placeholder="Senior Auditor" value="Senior Auditor" maxlength="30">
+
+            <button class="primary-btn" onclick="startChallenge()">Start Comprehensive Audit</button>
 
             <div class="rules-box">
-                <h2>Game Rules (Audit)</h2>
-                <ol style="padding-left: 20px;">
-                    <li>The Mission: A company's Income Statement has been drafted, but contains eight intentional errors.</li>
-                    <li>Classification Fix: Click on light yellow items. Select the correct category to move the item.</li>
-                    <li>Numerical Fix: Click on light red (dashed border) items. Input the correct value (use a minus sign for expenses).</li>
-                    <li>HINT! Click the ❓ button next to any item to get an educational explanation of the concept.</li>
-                    <li>Scoring: You get 1 point for each successfully fixed error (8 points total).</li>
+                <h2>The Rules of Complexity</h2>
+                <ol style="padding-left: 20px; line-height: 1.6;">
+                    <li>The Mission: The Income Statement has **9 total errors** (Numerical, Classification, Omission, Inclusion).</li>
+                    <li>Error Types:
+                        <ul>
+                            <li>**Yellow Dashed:** **Classification Error** (Wrong section) - Click to reclassify.</li>
+                            <li>**Red Dashed:** **Numerical Error** (Wrong dollar amount) - Click to correct the value.</li>
+                            <li>**Purple Dashed:** **Mixed Error** (Both classification AND numerical error) - Click to fix both.</li>
+                        </ul>
+                    </li>
+                    <li>**Special Rule: Income Tax Expense** (A12) is initially incorrect. You must first fix **all other 8 errors** to correctly calculate the Earnings Before Tax (EBT), and then apply a **25% tax rate** to EBT to find the final correct Net Income.</li>
+                    <li>**Inclusion/Omission:** If an item shouldn't be here (like **Dividends Paid**), set its value to **0**. If an item is missing, you must find and correct it (see initial list setup).</li>
                 </ol>
             </div>
         </div>
 
-        <!-- Game Screen (Hidden until started) -->
+        <!-- Game Screen -->
         <div id="game-screen">
             <h1 id="game-title"></h1>
-            <div id="score-display" style="text-align:right; font-weight:bold; margin-bottom:10px; font-size:1.1em;">Errors Fixed: 0/8</div>
+            <div id="score-display" style="text-align:right; font-weight:bold; margin-bottom:10px; font-size:1.1em;">Errors Fixed: 0/9</div>
 
             <div class="statement-container">
                 <div id="statement-structure">
-                    
+
                     <!-- REVENUE SECTION -->
                     <div id="revenue-section" class="statement-section" data-section-name="Revenue">
                         <div class="section-title">Revenue</div>
                         <div class="line-items-container"></div>
                     </div>
-                    
+
                     <!-- COGS SECTION -->
                     <div id="cogs-section" class="statement-section" data-section-name="COGS">
                         <div class="section-title">Cost of Goods Sold (COGS)</div>
                         <div class="line-items-container"></div>
                     </div>
-                    
+
                     <div id="gross-profit" class="total-line">
                         <span>Gross Profit</span>
                         <span id="value-GrossProfit">0</span>
@@ -398,180 +437,224 @@
                         <div class="section-title">Non-Operating / Other</div>
                         <div class="line-items-container"></div>
                     </div>
+                    
+                    <div id="ebt" class="total-line" style="border-top: 1px solid #0d9488;">
+                        <span>Earnings Before Tax (EBT)</span>
+                        <span id="value-EBT">0</span>
+                    </div>
 
                     <div id="net-income-final" class="net-income">
                         <span>NET INCOME:</span>
                         <span id="value-NetIncome">$0</span>
                     </div>
-
                 </div>
             </div>
 
-            <div id="feedback">
-                Find the eight misclassified or misvalued items and fix them!
+            <div id="feedback" style="background-color: #ecfdf5; padding: 15px; border-radius: 8px; margin-top: 20px; font-weight: 600; text-align: center;">
+                Awaiting your audit... Fix all 9 errors, including the Tax calculation rule!
             </div>
-            
+
             <div class="controls" style="text-align: center;">
                 <button class="primary-btn check-btn" onclick="checkNetIncome()">Verify Final Net Income 🧮</button>
             </div>
         </div>
-        
-        <!-- Classification Correction Modal (Existing) -->
+
+        <!-- Correction Modal (Handles both Numerical and Classification) -->
         <div id="correction-modal-overlay" class="modal-overlay" onclick="hideCorrectionModal()">
             <div class="modal-content" onclick="event.stopPropagation()">
                 <button class="modal-close-btn" onclick="hideCorrectionModal()">×</button>
-                <h3>Correction Required (Classification)</h3>
-                <p id="modal-item-name" style="font-weight:600; font-size:1.1em;"></p>
-                <p>This item is currently misclassified. Where does it correctly belong?</p>
-                
-                <div id="correction-options">
-                    <button class="category-option" data-target-category="Revenue" onclick="submitCorrection('Revenue')">Revenue</button>
-                    <button class="category-option" data-target-category="COGS" onclick="submitCorrection('COGS')">Cost of Goods Sold (COGS)</button>
-                    <button class="category-option" data-target-category="OpEx" onclick="submitCorrection('OpEx')">Operating Expenses (OpEx)</button>
-                    <button class="category-option" data-target-category="Non-Op" onclick="submitCorrection('Non-Op')">Non-Operating / Other</button>
+                <h3 id="modal-title">Correction Required</h3>
+                <p id="modal-item-name" style="font-weight:700; font-size:1.1em;"></p>
+
+                <!-- Classification Selector -->
+                <div id="classification-panel" class="mb-4">
+                    <p class="font-bold mb-2 text-sm text-gray-600">Step 1: Reclassify Item (If necessary)</p>
+                    <select id="correct-category-select" class="modal-input" style="border: 2px solid #0d9488;">
+                        <option value="Revenue">Revenue</option>
+                        <option value="COGS">Cost of Goods Sold (COGS)</option>
+                        <option value="OpEx">Operating Expenses (OpEx)</option>
+                        <option value="Non-Op">Non-Operating / Other</option>
+                    </select>
                 </div>
-                <div id="modal-feedback" style="margin-top: 10px; font-weight: 600; color: #dc2626;"></div>
-            </div>
-        </div>
-        
-        <!-- Numerical Correction Modal (NEW) -->
-        <div id="numerical-modal-overlay" class="modal-overlay" onclick="hideNumericalCorrectionModal()">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <button class="modal-close-btn" onclick="hideNumericalCorrectionModal()">×</button>
-                <h3>Correction Required (Numerical)</h3>
-                <p id="numerical-modal-item-name" style="font-weight:600; font-size:1.1em;"></p>
-                <p>This item's value is incorrect. Enter the correct value (use a minus sign for expenses, e.g., -50000):</p>
-                
-                <input type="number" id="correct-value-input" placeholder="e.g., -50000" style="padding: 10px; border: 2px solid #10b981; border-radius: 6px; width: 100%; box-sizing: border-box; margin-bottom: 15px; font-size: 1.1em;">
 
-                <button class="primary-btn check-btn" style="width:100%; margin-top:0; background-color: #10b981;" onclick="submitNumericalCorrection()">Submit Value</button>
+                <!-- Numerical Input -->
+                <div id="numerical-panel" class="mb-4">
+                    <p class="font-bold mb-2 text-sm text-gray-600">Step 2: Correct Value (Use minus sign for costs/expenses, 0 to remove)</p>
+                    <input type="number" id="correct-value-input" placeholder="e.g., 1500000 or -50000" class="modal-input" style="border: 2px solid #3b82f6;">
+                </div>
                 
-                <div id="numerical-modal-feedback" style="margin-top: 10px; font-weight: 600; color: #dc2626;"></div>
+                <p id="modal-guidance" class="text-xs italic text-gray-500 mb-4"></p>
+
+                <button class="primary-btn check-btn" style="width:100%; margin-top:0; background-color: #0d9488;" onclick="submitCorrection()">Apply Corrections</button>
+
+                <!-- ERROR FEEDBACK ELEMENT - Now uses the 'feedback-error' class on failure -->
+                <div id="modal-feedback" style="margin-top: 10px; font-weight: 600; text-align: center;"></div>
             </div>
         </div>
 
-        <!-- Hint Modal (UPDATED - Now local definitions) -->
+        <!-- Hint Modal -->
         <div id="hint-modal-overlay" class="modal-overlay" onclick="hideHintModal()">
             <div class="modal-content" onclick="event.stopPropagation()">
                 <button class="modal-close-btn" onclick="hideHintModal()">×</button>
                 <h3>Financial Concept Hint</h3>
-                <p id="hint-item-name" style="font-weight:600; font-size:1.1em;"></p>
-                <div id="hint-content">
+                <p id="hint-item-name" style="font-weight:700; font-size:1.1em;"></p>
+                <div id="hint-content" style="padding: 10px 0; font-size: 1.05em; line-height: 1.4;">
                     <!-- Definition will be placed here -->
                 </div>
             </div>
         </div>
 
-        
-        <!-- Results Screen (Hidden until completion) -->
+        <!-- Results Screen -->
         <div id="results-screen">
             <h1>🎉 Audit Complete! 🎉</h1>
             <h2 id="results-greeting"></h2>
-            
+
             <div class="score-card">
-                <div class="score-item">Errors Corrected: <span id="result-fixed-errors"></span>/8</div>
+                <div class="score-item">Errors Corrected: <span id="result-fixed-errors"></span>/9</div>
                 <div class="score-item">Calculated Net Income: <span id="result-net-income"></span></div>
             </div>
 
             <p id="final-message" style="font-size: 1.2em; margin-top: 20px; font-weight: 600; color: #065f46;"></p>
 
+            <!-- AUDIT DEBRIEF SECTION ADDED HERE -->
+            <div id="audit-debrief">
+                <h2 style="text-align:center; color:#0d9488; margin-bottom:20px;">Detailed Audit Debrief & Case Study Solution</h2>
+                
+                <h3 style="font-size:1.2em; font-weight:700; margin-bottom:10px;">Summary of 8 Non-Tax Corrections:</h3>
+                <table class="debrief-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Initial Value/Placement</th>
+                            <th>Final Correct Action</th>
+                            <th>Net Impact on EBT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="debrief-table-body">
+                        <!-- Content rendered by JavaScript -->
+                    </tbody>
+                </table>
+
+                <h3 style="font-size:1.2em; font-weight:700; margin-top:25px;">Final Calculation (Error #9: Income Tax)</h3>
+                <p style="margin-bottom:10px;">
+                    After fixing the 8 non-tax errors, the **Earnings Before Tax (EBT)** was calculated correctly.
+                </p>
+                <div class="highlight-tax">
+                    <p><strong>Corrected EBT:</strong> <span id="debrief-ebt-value">$445,000</span></p>
+                    <p><strong>Required Tax Rate:</strong> 25%</p>
+                    <p><strong>Correct Income Tax Expense:</strong> $445,000 × -0.25 = <strong id="debrief-tax-value">($111,250)</strong></p>
+                </div>
+                <p style="font-size:1.1em; font-weight:700; margin-top:15px; color:#065f46;">
+                    Resulting Final Net Income: <span id="debrief-final-ni">$333,750</span>
+                </p>
+
+            </div>
+            <!-- END DEBRIEF SECTION -->
+
             <button class="primary-btn" style="margin-top: 40px;" onclick="location.reload()">Start New Audit</button>
         </div>
     </div>
-    
+
     <script>
-        // --- CONSTANTS & GAME DATA ---
-        
-        // --- UPDATED LINE ITEMS: 3 new errors added (item-01, item-03, item-16) ---
+        // --- CONSTANTS & GAME DATA (Level 3: Comprehensive Focus) ---
+
+        // The initial list includes all items currently on the statement (even if incorrectly classified/valued)
+        // PLUS items that were OMITTED (indicated by value: 0 and initialCategory: 'OMITTED').
         const LINE_ITEMS_DATA = [
-            // ERROR 6: NUMERICAL (Sales Revenue, initial: 1,100,000, correct: 1,000,000)
-            { id: "item-01", name: "Sales Revenue", correctCategory: "Revenue", value: 1100000, isSubtotal: false, correctValue: 1000000 },
+            // A1: Numerical Error
+            { id: "A1", name: "Sales Revenue", initialCategory: "Revenue", value: 1400000, correctCategory: "Revenue", correctValue: 1500000, errorType: "Numerical" },
             
-            { id: "item-02", name: "Other Income", correctCategory: "Revenue", value: 5000, isSubtotal: false },
-            
-            // ERROR 8: NUMERICAL (COGS, initial: -350,000, correct: -300,000)
-            { id: "item-03", name: "Cost of Goods Sold", correctCategory: "COGS", value: -350000, isSubtotal: false, correctValue: -300000 },
-            
-            { id: "item-04", name: "Salaries Expense", correctCategory: "OpEx", value: -150000, isSubtotal: false },
-            { id: "item-05", name: "Rent Expense", correctCategory: "OpEx", value: -50000, isSubtotal: false },
-            
-            // ERROR 5: NUMERICAL (Marketing is OpEx, wrong value, correct value is -80000)
-            { id: "item-06", name: "Marketing Expense", correctCategory: "OpEx", value: -100000, isSubtotal: false, correctValue: -80000 }, 
-            
-            { id: "item-07", name: "Depreciation", correctCategory: "OpEx", value: -20000, isSubtotal: false },
-            
-            // ERROR 1: CLASSIFICATION (R&D is OpEx, initially placed in Non-Op)
-            { id: "item-08", name: "R&D Expense", correctCategory: "OpEx", value: -40000, isSubtotal: false },
-            
-            { id: "item-09", name: "Utilities Expense", correctCategory: "OpEx", value: -10000, isSubtotal: false },
-            { id: "item-10", name: "Consulting Fees", correctCategory: "OpEx", value: -20000, isSubtotal: false },
-            
-            { id: "item-11", name: "Gain on Sale of Asset", correctCategory: "Non-Op", value: 10000, isSubtotal: false },
-            { id: "item-12", name: "Investment Income", correctCategory: "Non-Op", value: 15000, isSubtotal: false },
-            
-            // ERROR 2: NUMERICAL (Tax is Non-Op, wrong value, correct value is -50000)
-            { id: "item-13", name: "Tax Expense", correctCategory: "Non-Op", value: -75000, isSubtotal: false, correctValue: -50000 },
-            
-            // ERROR 3: CLASSIFICATION (Interest is Non-Op, initially placed in OpEx)
-            { id: "item-14", name: "Interest Expense", correctCategory: "Non-Op", value: -25000, isSubtotal: false }, 
+            // A2: Correct Item
+            { id: "A2", name: "Salaries Expense", initialCategory: "OpEx", value: -200000, correctCategory: "OpEx", correctValue: -200000, errorType: "None" },
 
-            // ERROR 4: CLASSIFICATION (Shipping is COGS, initially placed in OpEx)
-            { id: "item-15", name: "Shipping & Handling Outbound", correctCategory: "COGS", value: -20000, isSubtotal: false },
+            // A3: Numerical Error
+            { id: "A3", name: "Cost of Goods Sold", initialCategory: "COGS", value: -650000, correctCategory: "COGS", correctValue: -700000, errorType: "Numerical" },
+            
+            // A4: Correct Item
+            { id: "A4", name: "Rent Expense (Office)", initialCategory: "OpEx", value: -80000, correctCategory: "OpEx", correctValue: -80000, errorType: "None" },
 
-            // ERROR 7: CLASSIFICATION (Bad Debt is OpEx, initially placed in COGS)
-            { id: "item-16", name: "Bad Debt Expense", correctCategory: "OpEx", value: -15000, isSubtotal: false },
+            // A13: Numerical Error
+            { id: "A13", name: "Amortization Expense", initialCategory: "OpEx", value: -10000, correctCategory: "OpEx", correctValue: -20000, errorType: "Numerical" },
+
+            // A6: Correct Item
+            { id: "A6", name: "Depreciation Expense", initialCategory: "OpEx", value: -40000, correctCategory: "OpEx", correctValue: -40000, errorType: "None" },
+
+            // A7: Inclusion Error (Should be removed, value set to 0) - Mixed Error
+            { id: "A7", name: "Dividends Paid", initialCategory: "Non-Op", value: -50000, correctCategory: "RE", correctValue: 0, errorType: "Mixed", guidance: "Dividends are a distribution of earnings, not an expense on the Income Statement (RE = Retained Earnings)." },
+            
+            // A8: Classification Error
+            { id: "A8", name: "Consulting Fee Income", initialCategory: "Non-Op", value: 10000, correctCategory: "Revenue", correctValue: 10000, errorType: "Classification" },
+
+            // A9: Correct Item
+            { id: "A9", name: "Gain on Asset Sale", initialCategory: "Non-Op", value: 5000, correctCategory: "Non-Op", correctValue: 5000, errorType: "None" },
+
+            // A11: Classification Error
+            { id: "A11", name: "Legal Settlement Expense", initialCategory: "OpEx", value: -30000, correctCategory: "Non-Op", correctValue: -30000, errorType: "Classification" },
+
+            // A15: Classification Error
+            { id: "A15", name: "Inventory Write-down", initialCategory: "COGS", value: -15000, correctCategory: "OpEx", correctValue: -15000, errorType: "Classification" },
+
+            // OMISSION ERRORS (Start with 0 value/category in initial setup)
+            { id: "A10", name: "Bad Debt Expense", initialCategory: "OMITTED", value: 0, correctCategory: "OpEx", correctValue: -10000, errorType: "Numerical", guidance: "This cost must be added to the appropriate section." },
+
+            { id: "A14", name: "Insurance Refund", initialCategory: "OMITTED", value: 0, correctCategory: "Non-Op", correctValue: 25000, errorType: "Numerical", guidance: "This item must be added to the appropriate section." },
+
+            // A12: Formula-Based Error (Must be fixed last)
+            { id: "A12", name: "Income Tax Expense (25%)", initialCategory: "Non-Op", value: -50000, correctCategory: "Non-Op", correctValue: 'CALCULATED', errorType: "Formula", guidance: "This value depends on EBT. Fix everything else first!" }
+        ];
+        
+        // Data for the audit debrief table
+        const AUDIT_DEBRIEF_DATA = [
+            { id: "A1", name: "Sales Revenue", initial: "$1,400,000 (Understated)", correct: "$1,500,000 in Revenue", action: "Value corrected by $100,000 (unrecorded sales).", impact: "+$100,000" },
+            { id: "A3", name: "Cost of Goods Sold", initial: "($650,000) (Understated)", correct: "($700,000) in COGS", action: "Value corrected by -$50,000 (missing factory costs).", impact: "-$50,000" },
+            { id: "A13", name: "Amortization Expense", initial: "($10,000)", correct: "($20,000) in OpEx", action: "Value corrected by -$10,000 (incorrect amortization schedule).", impact: "-$10,000" },
+            { id: "A7", name: "Dividends Paid", initial: "($50,000) in Non-Op", correct: "$0 (Removed)", action: "Inclusion Error: Item set to $0 and removed; it belongs on the Retained Earnings statement.", impact: "+$50,000" },
+            { id: "A10", name: "Bad Debt Expense", initial: "Omitted ($0)", correct: "($10,000) in OpEx", action: "Omission Error: Item added to Operating Expenses (OpEx).", impact: "-$10,000" },
+            { id: "A14", name: "Insurance Refund", initial: "Omitted ($0)", correct: "$25,000 in Non-Op", action: "Omission Error: Item added to Non-Operating income.", impact: "+$25,000" },
+            { id: "A8", name: "Consulting Fee Income", initial: "$10,000 in Non-Op", correct: "$10,000 in Revenue", action: "Classification Error: Reclassified to Revenue (core business income).", impact: "$0" },
+            { id: "A15", name: "Inventory Write-down", initial: "($15,000) in COGS", correct: "($15,000) in OpEx", action: "Classification Error: Reclassified to OpEx (periodic inventory adjustment).", impact: "$0" },
+            { id: "A11", name: "Legal Settlement Exp.", initial: "($30,000) in OpEx", correct: "($30,000) in Non-Op", action: "Classification Error: Reclassified to Non-Operating (unusual/non-recurring).", impact: "$0" }
         ];
 
-        // --- UPDATED ERROR METADATA (8 total errors) ---
-        const ERRORS_META = {
-            "item-01": { type: "numerical", initialCategory: "Revenue", correctValue: 1000000 }, // NEW
-            "item-03": { type: "numerical", initialCategory: "COGS", correctValue: -300000 },    // NEW
-            "item-06": { type: "numerical", initialCategory: "OpEx", correctValue: -80000 },     // OLD
-            "item-08": { type: "classification", initialCategory: "Non-Op", correctCategory: "OpEx" }, // OLD
-            "item-13": { type: "numerical", initialCategory: "Non-Op", correctValue: -50000 },   // OLD
-            "item-14": { type: "classification", initialCategory: "OpEx", correctCategory: "Non-Op" }, // OLD
-            "item-15": { type: "classification", initialCategory: "OpEx", correctCategory: "COGS" }, // OLD
-            "item-16": { type: "classification", initialCategory: "COGS", correctCategory: "OpEx" }, // NEW
-        };
-        
-        // Calculated Net Income when all 8 errors are fixed: $250,000
-        const CORRECT_NET_INCOME = 250000; 
 
-        // --- HARDCODED HINT DEFINITIONS (Updated with new item) ---
+        const ERROR_ITEMS = ["A1", "A3", "A7", "A8", "A13", "A11", "A15", "A10", "A14", "A12"];
+        const TAX_ITEM_ID = "A12";
+        const TAX_RATE = 0.25;
+        const TOTAL_ERRORS_COUNT = ERROR_ITEMS.length - 1; // 9 errors excluding the formula error (A12) that depends on all others
+
+        const CORRECT_NET_INCOME = 333750;
+
+        // --- HARDCODED HINT DEFINITIONS (Updated to be more comprehensive) ---
         const HINT_DEFINITIONS = {
-            "Sales Revenue": "This is the primary income generated from the sale of a company's core goods or services. It is the starting point of the Income Statement and belongs in the Revenue section.",
-            "Other Income": "Income earned from non-core business activities, such as licensing fees, asset disposal, or minor grants. It's revenue but not from the main operation, so it belongs in the Revenue section.",
-            "Cost of Goods Sold": "These are the direct costs attributable to the production of the goods or services sold by the company. This includes material costs and direct labor. It belongs in the COGS section.",
-            "Salaries Expense": "Costs for compensating employees who work in general and administrative roles (like accounting or HR), which are necessary for overall business operation. It belongs in Operating Expenses (OpEx).",
-            "Rent Expense": "The cost paid to use property, such as office space or a corporate headquarters. It is an everyday cost of running the business. It belongs in Operating Expenses (OpEx).",
-            "Marketing Expense": "Costs incurred to advertise, promote, and sell the company's products or services. These are general and administrative costs. It belongs in Operating Expenses (OpEx).",
-            "Depreciation": "A non-cash expense that systematically allocates the cost of a long-term tangible asset (like machinery) over its useful life. It reflects the usage of assets in operations. It belongs in Operating Expenses (OpEx).",
-            "R&D Expense": "Costs related to investigating and developing new products or processes. This is a core part of innovation and business operations. It belongs in Operating Expenses (OpEx).",
-            "Utilities Expense": "Costs for essential services like electricity, water, and gas used in the company's offices and facilities. It belongs in Operating Expenses (OpEx).",
-            "Consulting Fees": "Costs paid to external experts for advice on business strategy, IT, legal, or other non-core operational matters. It belongs in Operating Expenses (OpEx).",
-            "Gain on Sale of Asset": "A profit realized from selling a long-term asset (like old equipment) for more than its book value. This is a singular, one-off event outside of normal operations. It belongs in the Non-Operating / Other section.",
-            "Investment Income": "Earnings generated from a company's passive, non-core investments, such as interest earned on bonds or dividends from stocks. It belongs in the Non-Operating / Other section.",
-            "Tax Expense": "The compulsory charges imposed by governmental authorities on the company's earnings. This is calculated after operating and non-operating income. It belongs in the Non-Operating / Other section.",
-            "Interest Expense": "The cost of borrowing money, usually from loans or bonds. This is a financing cost, not a core operating cost related to the main business activities. It belongs in the Non-Operating / Other section.",
-            "Shipping & Handling Outbound": "The cost of transporting finished goods from the factory or warehouse to the customer. Since it is directly necessary to make the final sale, it is considered a direct cost. It belongs in the COGS section.",
-            "Bad Debt Expense": "The estimated loss from customers who won't pay for goods or services previously sold on credit. This is a necessary general administrative cost of running a business. It belongs in Operating Expenses (OpEx)." // NEW HINT
+            "Sales Revenue": "The total amount earned from primary business activities. Check for sales that were recorded incorrectly.",
+            "Salaries Expense": "Compensation paid to administrative or general employees. Part of OpEx.",
+            "Cost of Goods Sold": "The direct costs of producing goods/services sold. Includes direct materials, labor, and manufacturing overhead. Check for missing factory-related costs.",
+            "Rent Expense (Office)": "Cost for office premises, part of general overhead (OpEx).",
+            "Amortization Expense": "The systematic reduction of the value of intangible assets over their useful life. Part of OpEx.",
+            "Depreciation Expense": "Non-cash expense allocating the cost of tangible assets (like equipment) over time. Part of OpEx.",
+            "Dividends Paid": "Distributions to shareholders. **This is NOT an expense** and should not be on the Income Statement.",
+            "Consulting Fee Income": "Income derived from providing advice. If this is not the company's core business, it belongs to Non-Operating. **If it IS the core business, it's Revenue**.",
+            "Gain on Asset Sale": "Profit realized from selling a non-current asset for more than its book value. A Non-Operating item.",
+            "Legal Settlement Expense": "A one-time, unusual cost incurred due to a lawsuit or dispute. Often classified as Non-Operating due to its irregularity.",
+            "Inventory Write-down": "Adjusting inventory value down to its market value. **Typically an OpEx** or sometimes COGS, depending on GAAP rules, but usually OpEx.",
+            "Bad Debt Expense": "The estimated loss from customers who will not pay their accounts receivable. **This is an unavoidable operating cost (OpEx).**",
+            "Insurance Refund": "A cash inflow from an unexpected or unusual event, such as a refund on a policy premium. Typically Non-Operating.",
+            "Income Tax Expense (25%)": "The government charge. **This is calculated as a percentage of Earnings Before Tax (EBT).**"
         };
-
 
         let state = {
-            playerName: "Junior Auditor",
+            playerName: "Senior Auditor",
             errorsFixed: 0,
-            totalErrors: Object.keys(ERRORS_META).length, // Now 8
-            currentPlacement: {}, 
-            currentValue: {},    
-            errorStatus: {},     
-            activeItemId: null 
+            totalErrors: TOTAL_ERRORS_COUNT,
+            currentPlacement: {},
+            currentValue: {},
+            errorStatus: {},
+            activeItemId: null
         };
-        
+
         let itemElements = {};
 
         // --- UTILITY FUNCTIONS ---
-
         function formatCurrency(value) {
             const formattedValue = Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
             return (value < 0 ? `($${formattedValue})` : `$${formattedValue}`);
@@ -580,29 +663,26 @@
         function calculateSubtotals(currentPlacement, currentValue) {
             let totals = {
                 "Revenue": 0, "COGS": 0, "OpEx": 0, "Non-Op": 0,
-                "GrossProfit": 0, "OperatingIncome": 0, "NetIncome": 0
+                "GrossProfit": 0, "OperatingIncome": 0, "EBT": 0, "NetIncome": 0
             };
 
             LINE_ITEMS_DATA.forEach(item => {
-                // Determine the category to use for summing (the category where it is currently placed)
                 const category = currentPlacement[item.id];
-                // Determine the value to use for summing (the value currently in the state)
                 const value = currentValue[item.id] !== undefined ? currentValue[item.id] : item.value;
-                
-                if (category) {
+
+                if (category && category !== 'RE') { // Skip Retained Earnings items
                     totals[category] += value;
                 }
             });
 
             totals.GrossProfit = totals.Revenue + totals.COGS;
             totals.OperatingIncome = totals.GrossProfit + totals.OpEx;
-            totals.NetIncome = totals.OperatingIncome + totals["Non-Op"]; 
-
+            totals.EBT = totals.OperatingIncome + totals["Non-Op"];
+            
             return totals;
         }
 
         // --- GAME FLOW FUNCTIONS ---
-
         function startChallenge() {
             const nameInput = document.getElementById('name-input').value.trim();
             if (nameInput) {
@@ -615,62 +695,111 @@
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('results-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'block';
-            
-            document.getElementById('game-title').textContent = `${state.playerName}'s Advanced Audit Challenge 📝`;
-            
+
+            document.getElementById('game-title').textContent = `${state.playerName}'s Level 3 Comprehensive Audit 📝`;
+
             state.currentPlacement = {};
             state.currentValue = {};
-            state.errorStatus = {}; // Initialize error status map
-            state.errorsFixed = 0; 
+            state.errorStatus = {};
+            state.errorsFixed = 0;
             itemElements = {};
 
+            // Initialize Omitted items to a visible (but wrong) category like Revenue so they can be clicked
             LINE_ITEMS_DATA.forEach(item => {
-                const errorMeta = ERRORS_META[item.id];
-                
-                // Initialize placement: If it's a classification error, place it in the initial wrong category. Otherwise, place it in the correct category.
-                state.currentPlacement[item.id] = errorMeta && errorMeta.type === 'classification' 
-                    ? errorMeta.initialCategory 
-                    : item.correctCategory; 
-                
-                // Initialize value: If it's a numerical error, use the incorrect initial value. Otherwise, use the correct value.
-                state.currentValue[item.id] = errorMeta && errorMeta.type === 'numerical'
-                    ? item.value // Initial, incorrect value
-                    : item.value; // Correct value (or initial correct value for non-error items)
-                
-                if (errorMeta) {
-                    // Items with errors are initially unfixed
-                    state.errorStatus[item.id] = false; 
-                }
+                state.currentPlacement[item.id] = item.initialCategory === 'OMITTED' ? 'Revenue' : item.initialCategory;
+                state.currentValue[item.id] = item.value;
+                state.errorStatus[item.id] = false;
             });
 
-            // Call the unified function to render and calculate initial state
-            updateScoreAndRender(); 
+            // Set initial value for A10 and A14 to 0, and place them in the correct section so they are visible and clickable
+            state.currentPlacement['A10'] = 'OpEx'; // Bad Debt Expense is OpEx
+            state.currentValue['A10'] = 0;
+            state.currentPlacement['A14'] = 'Non-Op'; // Insurance Refund is Non-Op
+            state.currentValue['A14'] = 0;
+
+
+            updateScoreAndRender();
         }
 
         /**
-         * Recalculates the score, updates the state, and triggers UI rendering and totals calculation.
+         * Determines the status of an item (numerical, classification, fixed, or mixed error)
+         */
+        function getItemStatus(itemId) {
+            const item = LINE_ITEMS_DATA.find(i => i.id === itemId);
+            if (!item || item.errorType === 'None') return 'correct';
+            
+            // Handle fixed status based on state
+            if (state.errorStatus[itemId]) return 'fixed';
+
+            // Tax item status depends on EBT calculation which is checked in final verification
+            if (itemId === TAX_ITEM_ID) {
+                return state.errorsFixed < TOTAL_ERRORS_COUNT ? 'formula-error' : 'numerical-error';
+            }
+
+
+            const currentCat = state.currentPlacement[itemId];
+            const currentVal = state.currentValue[itemId];
+
+            // Correct final category and value
+            const correctCat = item.correctCategory;
+            const correctVal = item.correctValue;
+
+            // Check if fixed state is reached (Category and Value match the correct final state)
+            const isCatFixed = (currentCat === correctCat || correctCat === 'RE');
+            const isValFixed = (currentVal === correctVal);
+
+            if (isCatFixed && isValFixed) {
+                state.errorStatus[itemId] = true; // Mark fixed
+                return 'fixed';
+            }
+
+
+            // Check errors
+            const isCatWrong = currentCat !== correctCat && correctCat !== 'RE';
+            const isValWrong = currentVal !== correctVal;
+            
+            // Special handling for A7 (Dividends Paid - Inclusion error)
+            if (itemId === 'A7') {
+                 // Error if it's visible (in Non-Op) and not set to 0. It is a mixed error because it's in the wrong category and has a non-zero value.
+                if (currentCat === 'Non-Op' && currentVal !== 0) {
+                    return 'mixed-error'; 
+                }
+            }
+            
+            // Special handling for A10/A14 (Omission errors - start at 0, must be changed to correctValue AND correctCategory)
+            if (itemId === 'A10' || itemId === 'A14') {
+                if (!isValFixed) {
+                    // Since the item starts at 0, and should be a non-zero value, it's a numerical error.
+                    return 'numerical-error'; 
+                }
+            }
+
+            // Standard Numerical/Mixed check
+            if (isCatWrong && isValWrong) return 'mixed-error';
+            if (isValWrong) return 'numerical-error';
+            if (isCatWrong) return 'classification-error';
+
+
+            return 'correct'; // Fallback for items that should be correct but were marked as errors in the beginning logic
+        }
+
+        /**
+         * Recalculates the score and triggers UI rendering and totals calculation.
          */
         function updateScoreAndRender() {
             let fixedCount = 0;
-            
-            // Check every item that has a defined error in ERRORS_META
-            Object.keys(ERRORS_META).forEach(itemId => {
-                const errorMeta = ERRORS_META[itemId];
-                const currentPlacement = state.currentPlacement[itemId];
-                const currentValue = state.currentValue[itemId];
-                let isFixed = false;
 
-                if (errorMeta.type === 'classification') {
-                    // Check if placement is correct
-                    if (currentPlacement === errorMeta.correctCategory) {
-                        isFixed = true;
-                    }
-                } else if (errorMeta.type === 'numerical') {
-                    // Check if value is correct
-                    if (currentValue === errorMeta.correctValue) {
-                        isFixed = true;
-                    }
-                }
+            ERROR_ITEMS.filter(id => id !== TAX_ITEM_ID).forEach(itemId => {
+                const item = LINE_ITEMS_DATA.find(i => i.id === itemId);
+                const currentCat = state.currentPlacement[itemId];
+                const currentVal = state.currentValue[itemId];
+                
+                // Final correct state
+                const correctCat = item.correctCategory;
+                const correctVal = item.correctValue;
+                
+                // Check if item is fixed (Category and Value must match correct final state)
+                let isFixed = (currentCat === correctCat || correctCat === 'RE') && (currentVal === correctVal);
 
                 state.errorStatus[itemId] = isFixed;
                 if (isFixed) {
@@ -681,272 +810,307 @@
             state.errorsFixed = fixedCount;
             renderStatement();
             updateScoreDisplay();
-            updateTotals(calculateSubtotals(state.currentPlacement, state.currentValue));
-            
-            if (state.errorsFixed === state.totalErrors) {
-                document.getElementById('feedback').innerHTML = `CONGRATULATIONS! All ${state.totalErrors} errors have been fixed. You can now verify the final Net Income.`;
-                const checkBtn = document.querySelector('.check-btn');
-                if (checkBtn) checkBtn.style.backgroundColor = '#059669'; // Darker green for emphasis
+
+            const totals = calculateSubtotals(state.currentPlacement, state.currentValue);
+            updateTotals(totals);
+
+            // Logic to activate the Tax error
+            const taxItemElement = document.getElementById(TAX_ITEM_ID);
+            if (state.errorsFixed === TOTAL_ERRORS_COUNT) {
+                document.getElementById('feedback').innerHTML = `**All 8 Non-Tax Errors Fixed!** Your EBT is ${formatCurrency(totals.EBT)}. Now, use the **25% tax rate** to correct the Income Tax Expense (A12) and run the final verification!`;
+                
+                // Check if A12 element exists and isn't fixed yet
+                if (taxItemElement) {
+                    if (!state.errorStatus[TAX_ITEM_ID]) {
+                        // Re-render to ensure it shows up if it was filtered out
+                        renderStatement(); 
+                        const reRenderedTaxItem = document.getElementById(TAX_ITEM_ID);
+                        if(reRenderedTaxItem) {
+                             reRenderedTaxItem.setAttribute('data-status', 'numerical-error');
+                             reRenderedTaxItem.onclick = () => showCorrectionModal(TAX_ITEM_ID, 'Income Tax Expense (25%)');
+                        }
+                    }
+                }
+            } else {
+                document.getElementById('feedback').innerHTML = `Awaiting your audit... Fix ${TOTAL_ERRORS_COUNT - state.errorsFixed} more non-tax errors!`;
             }
         }
-
 
         function renderStatement() {
             document.querySelectorAll('.line-items-container').forEach(container => container.innerHTML = '');
 
+            // Group items by their current category
+            const categorizedItems = {
+                "Revenue": [], "COGS": [], "OpEx": [], "Non-Op": []
+            };
+
             LINE_ITEMS_DATA.forEach(item => {
                 const currentCategory = state.currentPlacement[item.id];
-                const currentValue = state.currentValue[item.id];
-                const errorMeta = ERRORS_META[item.id];
-
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'line-item';
-                itemDiv.id = item.id;
-                itemDiv.setAttribute('data-correct-category', item.correctCategory);
-                itemDiv.setAttribute('data-current-category', currentCategory);
-                itemDiv.setAttribute('data-error-type', errorMeta ? errorMeta.type : 'none');
                 
-                let status = 'correct'; 
-                
-                if (errorMeta) {
-                    const isFixed = state.errorStatus[item.id];
-                    
-                    if (isFixed) {
-                        status = 'fixed';
-                    } else {
-                        // If not fixed, determine what kind of error is visible
-                        let isClassificationWrong = errorMeta.type === 'classification' && currentCategory !== errorMeta.correctCategory;
-                        let isNumericalWrong = errorMeta.type === 'numerical' && currentValue !== errorMeta.correctValue;
+                // Only render if the item is NOT set to zero AND its category is not 'RE'
+                if (currentCategory && currentCategory !== 'RE' && state.currentValue[item.id] !== 0) {
+                    categorizedItems[currentCategory].push(item);
+                } else if (item.initialCategory === 'OMITTED' && state.currentValue[item.id] === 0) {
+                    // Special case: If an omitted item hasn't been added (value is 0), show it in its correct location if it was an OMISSION error
+                    // This is handled by ensuring their initial placement in startGame() is correct (OpEx/Non-Op) and value is 0.
+                    // If the item has value 0, it should be filtered out UNLESS the fix relies on setting it to 0 (A7).
+                    // We rely on the initial placement of A10/A14 in OpEx/Non-Op in startGame and their 0 value to ensure they are available for correction via the modal.
+                    // However, we only render items with non-zero value, so omission items A10/A14 need to be added by the user first. 
+                    // Let's rely on the user finding the error by clicking on other items or knowing the omission exists.
+                    // For now, let's allow rendering of Omitted items that are yet to be fixed, but rely on the logic in startGame to place them correctly.
 
-                        // Numerical error takes visual priority if both are wrong, but we check if the error type for this item is actually classification or numerical.
-                        if (errorMeta.type === 'classification' && isClassificationWrong) {
-                            status = 'classification-error';
-                        } else if (errorMeta.type === 'numerical' && isNumericalWrong) {
-                            status = 'numerical-error';
-                        } else if (errorMeta.type === 'classification' && !isClassificationWrong && ERRORS_META[item.id].type === 'numerical' && state.currentValue[item.id] !== ERRORS_META[item.id].correctValue) {
-                             // This is a complex case where a numerical item might be incorrectly classified AND numerically wrong.
-                             // We simplify: if it's an error item and not fixed, show its primary error type.
-                             // Since our errors are clean (only one type of error per item), this is straightforward.
-                             if (errorMeta.type === 'classification' && !isFixed) status = 'classification-error';
-                             if (errorMeta.type === 'numerical' && !isFixed) status = 'numerical-error';
-                        }
+                    if (item.id === 'A10' || item.id === 'A14') {
+                         if (item.correctValue !== state.currentValue[item.id]) {
+                            categorizedItems[state.currentPlacement[item.id]].push(item);
+                         }
                     }
                 }
                 
-                itemDiv.setAttribute('data-status', status);
-
-                // --- Item HTML Structure including the Hint Button ---
-                itemDiv.innerHTML = `
-                    <span>${item.name}</span>
-                    <div class="item-details">
-                        <button class="hint-btn" title="Get financial concept hint" onclick="event.stopPropagation(); showHintModal('${item.name}')">❓</button>
-                        <span>${formatCurrency(currentValue)}</span>
-                    </div>
-                `;
-
-                // Add click listener for correction only to error items
-                if (status.includes('error')) {
-                    itemDiv.addEventListener('click', handleItemClick);
-                } else {
-                    itemDiv.removeEventListener('click', handleItemClick);
-                    itemDiv.style.cursor = 'default';
+                // Special case for A12 to ensure it is visible when it should be corrected
+                if (item.id === TAX_ITEM_ID && state.errorsFixed === TOTAL_ERRORS_COUNT) {
+                     categorizedItems[state.currentPlacement[item.id]].push(item);
                 }
+                // A7 is included/removed via value=0, so if value is 0, it is filtered out by the main if condition, which is correct.
+            });
 
-                const containerId = currentCategory.toLowerCase().replace(' ', '-') + '-section';
-                const targetContainer = document.querySelector(`#${containerId} .line-items-container`);
-                if (targetContainer) {
-                    targetContainer.appendChild(itemDiv);
-                }
-                
-                itemElements[item.id] = itemDiv; 
+            Object.keys(categorizedItems).forEach(category => {
+                const container = document.querySelector(`#${category.toLowerCase()}-section .line-items-container`);
+                if (!container) return;
+
+                categorizedItems[category].sort((a, b) => a.id.localeCompare(b.id)).forEach(item => {
+                    const itemId = item.id;
+                    const currentValue = state.currentValue[itemId];
+                    const status = getItemStatus(itemId);
+                    
+                    // Skip rendering A12 initially if it's not fixed AND not the time to fix it
+                    if (itemId === TAX_ITEM_ID && status === 'formula-error' && state.errorsFixed < TOTAL_ERRORS_COUNT) {
+                        return;
+                    }
+
+
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'line-item';
+                    itemDiv.id = itemId;
+                    itemDiv.setAttribute('data-status', status);
+
+                    // Add click handler only for UNFIXED errors
+                    if (status.includes('error') && status !== 'formula-error') {
+                        itemDiv.addEventListener('click', () => showCorrectionModal(itemId, item.name));
+                    }
+
+                    // Item Name and Hint Button
+                    const itemNameSpan = document.createElement('span');
+                    itemNameSpan.textContent = item.name;
+
+                    const itemDetailsDiv = document.createElement('div');
+                    itemDetailsDiv.className = 'item-details';
+
+                    const hintButton = document.createElement('button');
+                    hintButton.className = 'hint-btn';
+                    hintButton.textContent = '?';
+                    hintButton.setAttribute('title', `Hint for ${item.name}`);
+                    hintButton.onclick = (e) => {
+                        e.stopPropagation();
+                        showHintModal(item.name);
+                    };
+                    itemDetailsDiv.appendChild(hintButton);
+                    itemDetailsDiv.appendChild(itemNameSpan);
+
+                    itemDiv.appendChild(itemDetailsDiv);
+
+                    // Value Display
+                    const valueSpan = document.createElement('span');
+                    valueSpan.textContent = formatCurrency(currentValue);
+                    itemDiv.appendChild(valueSpan);
+
+                    container.appendChild(itemDiv);
+                    itemElements[itemId] = itemDiv;
+                });
             });
         }
-        
-        function handleItemClick(e) {
-            const itemDiv = e.currentTarget;
-            const status = itemDiv.getAttribute('data-status');
-            const itemName = itemDiv.querySelector('span:first-child').textContent;
 
 
-            if (status.includes('-error')) {
-                state.activeItemId = itemDiv.id;
-                
-                if (status === 'classification-error') {
-                    showCorrectionModal(itemName);
-                } else if (status === 'numerical-error') {
-                    showNumericalCorrectionModal(itemName);
-                }
-            } else {
-                 document.getElementById('feedback').textContent = "This item is correctly placed or already fixed. Focus on the highlighted items.";
-            }
+        function updateScoreDisplay() {
+            document.getElementById('score-display').textContent = `Errors Fixed: ${state.errorsFixed}/${TOTAL_ERRORS_COUNT}`;
         }
-        
-        // --- MODAL AND CORRECTION LOGIC (Classification) ---
 
-        function showCorrectionModal(itemName) {
+        function updateTotals(totals) {
+            document.getElementById('value-GrossProfit').textContent = formatCurrency(totals.GrossProfit);
+            document.getElementById('value-OperatingIncome').textContent = formatCurrency(totals.OperatingIncome);
+            document.getElementById('value-EBT').textContent = formatCurrency(totals.EBT);
+            document.getElementById('value-NetIncome').textContent = formatCurrency(totals.EBT + state.currentValue[TAX_ITEM_ID]);
+
+            // Change border color to green only if Net Income matches the final target
+            const currentNetIncome = totals.EBT + state.currentValue[TAX_ITEM_ID];
+            document.getElementById('net-income-final').style.borderColor = currentNetIncome === CORRECT_NET_INCOME ? '#10b981' : '#0d9488';
+        }
+
+        // --- CORRECTION MODAL HANDLERS (Unified for Num & Class) ---
+        function showCorrectionModal(itemId, itemName) {
+            state.activeItemId = itemId;
+            const item = LINE_ITEMS_DATA.find(i => i.id === itemId);
+            const status = getItemStatus(itemId);
+
+            document.getElementById('modal-title').textContent = (status === 'numerical-error' ? 'Numerical Correction' : (status === 'classification-error' ? 'Classification Correction' : 'Mixed Correction'));
             document.getElementById('modal-item-name').textContent = itemName;
-            document.getElementById('modal-feedback').textContent = '';
+            
+            // CLEAR FEEDBACK on opening
+            const feedbackElement = document.getElementById('modal-feedback');
+            feedbackElement.textContent = '';
+            feedbackElement.classList.remove('feedback-error');
+
+            // Set initial values
+            document.getElementById('correct-category-select').value = state.currentPlacement[itemId];
+            document.getElementById('correct-value-input').value = state.currentValue[itemId];
+
+            // Set specific guidance
+            let guidance = "Adjust the section (classification) and/or the dollar amount (numerical) as needed.";
+            if (item.guidance) {
+                guidance = item.guidance;
+            } else if (itemId === TAX_ITEM_ID) {
+                 guidance = "Income Tax is a special item. It is 25% of the calculated Earnings Before Tax (EBT).";
+            }
+            document.getElementById('modal-guidance').textContent = guidance;
+
+
             document.getElementById('correction-modal-overlay').classList.add('visible');
         }
 
         function hideCorrectionModal() {
-            state.activeItemId = null;
             document.getElementById('correction-modal-overlay').classList.remove('visible');
-        }
-
-        function submitCorrection(chosenCategory) {
-            const itemId = state.activeItemId;
-            if (!itemId) return;
-
-            const errorMeta = ERRORS_META[itemId];
-            
-            if (errorMeta.type === 'classification' && chosenCategory === errorMeta.correctCategory) {
-                const itemData = LINE_ITEMS_DATA.find(i => i.id === itemId);
-
-                // 1. Update the state
-                state.currentPlacement[itemId] = chosenCategory;
-                
-                // 2. Recalculate score, render, and update totals/feedback
-                updateScoreAndRender(); 
-
-                document.getElementById('feedback').innerHTML = `SUCCESS! You correctly identified the ${itemData.name} as a ${chosenCategory} item.`;
-
-                hideCorrectionModal();
-            } else if (errorMeta.type === 'numerical') {
-                document.getElementById('modal-feedback').textContent = `This item has a numerical error, not a classification error. Use the red-dashed correction interface.`;
-            } else {
-                document.getElementById('modal-feedback').textContent = `Incorrect! The ${chosenCategory} category is not where this item belongs. Try again.`;
-            }
-        }
-
-        // --- MODAL AND CORRECTION LOGIC (Numerical) ---
-
-        function showNumericalCorrectionModal(itemName) {
-            const itemId = state.activeItemId;
-            const currentValue = state.currentValue[itemId];
-            
-            document.getElementById('numerical-modal-item-name').textContent = itemName;
-            document.getElementById('numerical-modal-feedback').textContent = '';
-            document.getElementById('correct-value-input').value = currentValue; 
-            document.getElementById('numerical-modal-overlay').classList.add('visible');
-        }
-
-        function hideNumericalCorrectionModal() {
             state.activeItemId = null;
-            document.getElementById('numerical-modal-overlay').classList.remove('visible');
         }
 
-        function submitNumericalCorrection() {
+        function submitCorrection() {
             const itemId = state.activeItemId;
-            if (!itemId) return;
+            const item = LINE_ITEMS_DATA.find(i => i.id === itemId);
+            const feedbackElement = document.getElementById('modal-feedback');
+            
+            const selectedCategory = document.getElementById('correct-category-select').value;
+            const inputValue = parseInt(document.getElementById('correct-value-input').value, 10);
+            
+            feedbackElement.classList.remove('feedback-error'); // Reset visual flair
 
-            const errorMeta = ERRORS_META[itemId];
-            const inputElement = document.getElementById('correct-value-input');
+            if (isNaN(inputValue)) {
+                feedbackElement.textContent = "Please enter a valid number for the value.";
+                feedbackElement.classList.add('feedback-error');
+                return;
+            }
+
+            // Temporarily store the proposed changes
+            const proposedCat = selectedCategory;
+            const proposedVal = inputValue;
+
+            // Check if the proposed changes match the fixed state
+            const isCatCorrect = proposedCat === item.correctCategory;
+            const isValCorrect = proposedVal === item.correctValue;
             
-            const newValue = parseInt(inputElement.value, 10);
-            
-            if (isNaN(newValue)) {
-                document.getElementById('numerical-modal-feedback').textContent = 'Please enter a valid number (e.g., -50000).';
+            // Special check for Dividends Paid (A7) - Category is technically 'RE', but checking if value is 0 is enough
+            const isA7Fixed = itemId === 'A7' && proposedVal === 0;
+
+            // Special check for Tax (A12)
+            if (itemId === TAX_ITEM_ID) {
+                if (state.errorsFixed < TOTAL_ERRORS_COUNT) {
+                    feedbackElement.textContent = "You must fix all 8 Non-Tax Errors first to calculate EBT correctly!";
+                    feedbackElement.classList.add('feedback-error');
+                    return;
+                }
+                const totals = calculateSubtotals(state.currentPlacement, state.currentValue);
+                const correctTax = Math.round(totals.EBT * -TAX_RATE);
+                
+                if (proposedVal === correctTax) {
+                    state.currentPlacement[itemId] = proposedCat;
+                    state.currentValue[itemId] = proposedVal;
+                    state.errorStatus[itemId] = true;
+                    // Note: We don't increment errorsFixed here, as it's the 9th step checked in checkNetIncome
+                    hideCorrectionModal();
+                    updateScoreAndRender();
+                } else {
+                    feedbackElement.textContent = `Tax calculation incorrect. EBT is ${formatCurrency(totals.EBT)}. Tax Rate is ${TAX_RATE * 100}%.`;
+                    feedbackElement.classList.add('feedback-error');
+                }
                 return;
             }
             
-            if (errorMeta.type === 'numerical' && newValue === errorMeta.correctValue) {
-                const itemData = LINE_ITEMS_DATA.find(i => i.id === itemId);
+            // For all other errors
+            if ((isCatCorrect && isValCorrect) || isA7Fixed) {
+                // Apply the fix
+                state.currentPlacement[itemId] = proposedCat;
+                state.currentValue[itemId] = proposedVal;
                 
-                // 1. Update the state
-                state.currentValue[itemId] = newValue;
-
-                // 2. Recalculate score, render, and update totals/feedback
+                // If it wasn't fixed before, mark it fixed and increment count
+                if (!state.errorStatus[itemId]) {
+                    state.errorStatus[itemId] = true;
+                    state.errorsFixed++; 
+                }
+                
+                hideCorrectionModal();
                 updateScoreAndRender();
-                
-                document.getElementById('feedback').innerHTML = `SUCCESS! You corrected the ${itemData.name} value to ${formatCurrency(newValue)}.`;
-
-                hideNumericalCorrectionModal();
-            } else if (errorMeta.type === 'classification') {
-                document.getElementById('numerical-modal-feedback').textContent = `This item has a classification error, not a numerical error. Use the yellow correction interface.`;
             } else {
-                document.getElementById('numerical-modal-feedback').textContent = `Incorrect! The value ${formatCurrency(newValue)} is not the correct amount. Try again.`;
+                feedbackElement.textContent = "Incorrect correction. Check the item's category and value again. Use 0 to remove an item.";
+                feedbackElement.classList.add('feedback-error');
             }
         }
 
-        // --- MODAL AND CORRECTION LOGIC (Hint - NOW LOCAL) ---
-
+        // --- HINT MODAL HANDLERS ---
         function showHintModal(itemName) {
-            const hintModal = document.getElementById('hint-modal-overlay');
-            const hintContent = document.getElementById('hint-content');
-            
-            const definition = HINT_DEFINITIONS[itemName] || "Definition not found for this item.";
-            
             document.getElementById('hint-item-name').textContent = itemName;
-            hintContent.innerHTML = `<p>${definition}</p>`;
-            hintModal.classList.add('visible');
+            document.getElementById('hint-content').textContent = HINT_DEFINITIONS[itemName] || "No specific hint available for this item, but remember its standard accounting treatment.";
+            document.getElementById('hint-modal-overlay').classList.add('visible');
         }
 
         function hideHintModal() {
             document.getElementById('hint-modal-overlay').classList.remove('visible');
         }
 
-        
-        // --- DISPLAY AND SCORING FUNCTIONS ---
+        // --- NEW AUDIT DEBRIEF FUNCTION ---
+        function showAuditDebrief(totals) {
+            const debriefBody = document.getElementById('debrief-table-body');
+            debriefBody.innerHTML = '';
+            
+            AUDIT_DEBRIEF_DATA.forEach(data => {
+                const row = debriefBody.insertRow();
+                row.insertCell().textContent = data.name;
+                row.insertCell().textContent = data.initial;
+                row.insertCell().textContent = `${data.correct} (${data.action})`;
+                row.insertCell().textContent = data.impact;
+            });
 
-        function updateTotals(totals) {
-            document.getElementById('value-GrossProfit').textContent = formatCurrency(totals.GrossProfit);
-            document.getElementById('value-OperatingIncome').textContent = formatCurrency(totals.OperatingIncome);
-            document.getElementById('value-NetIncome').textContent = formatCurrency(totals.NetIncome);
+            const correctTax = Math.round(totals.EBT * -TAX_RATE);
+            const finalNetIncome = totals.EBT + correctTax;
 
-            const netIncomeDiv = document.getElementById('net-income-final');
-            if (state.errorsFixed < state.totalErrors) {
-                netIncomeDiv.style.border = '3px solid #f59e0b';
-                netIncomeDiv.style.color = '#b45309';
-            } else {
-                netIncomeDiv.style.border = '3px solid #10b981';
-                netIncomeDiv.style.color = '#065f46';
-            }
+            document.getElementById('debrief-ebt-value').textContent = formatCurrency(totals.EBT);
+            document.getElementById('debrief-tax-value').textContent = formatCurrency(correctTax);
+            document.getElementById('debrief-final-ni').textContent = formatCurrency(finalNetIncome);
         }
 
-        function updateScoreDisplay() {
-            document.getElementById('score-display').textContent = `Errors Fixed: ${state.errorsFixed}/${state.totalErrors}`;
-        }
-        
+        // --- FINAL CHECK AND RESULTS ---
         function checkNetIncome() {
-            if (state.errorsFixed < state.totalErrors) {
-                document.getElementById('feedback').innerHTML = `Incomplete Audit! You must fix all ${state.totalErrors} errors before verifying the Net Income.`;
-                return;
-            }
-
-            const finalTotals = calculateSubtotals(state.currentPlacement, state.currentValue);
+            const totals = calculateSubtotals(state.currentPlacement, state.currentValue);
+            const currentNetIncome = totals.EBT + state.currentValue[TAX_ITEM_ID];
             
-            let scoreMessage = "Incorrect Net Income";
-            let finalMessage = "";
+            // Check if tax is fixed before displaying final score
+            const isTaxFixed = state.errorStatus[TAX_ITEM_ID]; 
+            const totalFixedCount = state.errorsFixed + (isTaxFixed ? 1 : 0);
+            
+            document.getElementById('results-greeting').textContent = `Auditor ${state.playerName}, your final check is complete!`;
+            document.getElementById('result-fixed-errors').textContent = totalFixedCount;
+            document.getElementById('result-net-income').textContent = formatCurrency(currentNetIncome);
 
-            if (finalTotals.NetIncome === CORRECT_NET_INCOME) {
-                scoreMessage = "Correct Net Income";
-                finalMessage = "Perfect Audit! You fixed all classification and numerical errors, resulting in the correct final Net Income ($250,000). Excellent work, Senior Auditor!";
+            if (currentNetIncome === CORRECT_NET_INCOME && totalFixedCount === 9) {
+                document.getElementById('final-message').innerHTML = "PERFECT AUDIT! All 9 errors were identified and corrected. You are a Senior Auditor!";
+                document.querySelector('.score-card').style.borderColor = '#10b981';
             } else {
-                scoreMessage = "Incorrect Net Income";
-                finalMessage = `Audit Incomplete. While you fixed all 8 errors, the calculated Net Income did not match the expected value of ${formatCurrency(CORRECT_NET_INCOME)}. Double-check your numerical inputs!`;
+                document.getElementById('final-message').innerHTML = `The calculated Net Income (${formatCurrency(currentNetIncome)}) does not match the target (${formatCurrency(CORRECT_NET_INCOME)}), or you still have errors to fix. Total errors fixed: ${totalFixedCount}/9. Review the debrief below to learn the correct accounting treatment.`;
+                document.querySelector('.score-card').style.borderColor = '#dc2626'; // Red border for failed audit
             }
             
-            showResults(scoreMessage, finalMessage);
-        }
+            // Always show the debrief for learning purposes
+            showAuditDebrief(totals);
 
-        function showResults(scoreMessage, finalMessage) {
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('results-screen').style.display = 'block';
-
-            document.getElementById('results-greeting').textContent = `Hello, ${state.playerName}! Your advanced audit is complete.`;
-            document.getElementById('result-fixed-errors').textContent = state.errorsFixed;
-            document.getElementById('result-net-income').textContent = scoreMessage;
-            document.getElementById('final-message').textContent = finalMessage;
-            document.getElementById('results-net-income').textContent = "Final Net Income: " + formatCurrency(calculateSubtotals(state.currentPlacement, state.currentValue).NetIncome);
         }
-
-        // Initialize game on load
-        document.addEventListener('DOMContentLoaded', () => {
-             document.getElementById('game-screen').style.display = 'none';
-             document.getElementById('results-screen').style.display = 'none';
-             document.getElementById('start-screen').style.display = 'block';
-        });
     </script>
 </body>
 </html>
