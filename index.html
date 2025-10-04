@@ -3,1114 +3,650 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Income Statement Audit Challenge - Comprehensive</title>
+    <title>The Profit Path - Financial Runner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900;700&display=swap');
-
-        /* Tailwind-inspired base styling and custom design */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fc; /* Light background */
-            margin: 0;
-            padding: 20px;
-            color: #1f2937; /* Dark text */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0d1a29; }
+        
+        /* Custom styles for the game canvas */
+        #gameCanvas {
+            border: 6px solid #1e3a8a; /* Dark Blue border */
+            background: linear-gradient(to bottom, #f0f9ff 0%, #ffffff 100%); /* Light sky background */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            touch-action: manipulation;
         }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        .text-shadow-light {
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
-        h1 {
-            color: #0d9488; /* Teal color for emphasis */
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 2.5em;
-            font-weight: 900;
+        .btn-game {
+            transition: all 0.15s ease;
+            box-shadow: 0 4px #047857; /* Darker green shadow */
         }
-        h2 {
-            font-size: 1.5em;
-            font-weight: 800;
-            color: #0f766e;
-        }
-
-        /* --- Global Button Styling --- */
-        .primary-btn {
-            background-color: #0d9488;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
-            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3);
-            font-weight: 700;
-        }
-        .primary-btn:hover {
-            background-color: #0f766e;
+        .btn-game:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(13, 148, 136, 0.4);
+            box-shadow: 0 6px #047857;
         }
-        .check-btn {
-            background-color: #3b82f6; /* Blue Check Button */
-            color: white;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
-            margin-top: 20px;
-        }
-        .check-btn:hover {
-            background-color: #2563eb;
+        .btn-game:active {
+            box-shadow: 0 0 #047857;
+            transform: translateY(4px);
         }
 
-        /* Hint Button Style */
-        .hint-btn {
-            background: none;
-            border: 1px solid #0d9488;
-            color: #0d9488;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 0.8em;
-            margin-right: 15px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-weight: 800;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .hint-btn:hover {
-            background-color: #ccfbf1;
-        }
-
-        /* --- Start Screen --- */
-        #start-screen {
-            text-align: center;
-            padding: 40px;
-        }
-        #name-input {
-            padding: 10px;
-            border: 2px solid #0d9488;
-            border-radius: 6px;
-            width: 80%;
-            max-width: 300px;
-            margin: 15px 0 30px 0;
-            font-size: 1em;
-            text-align: center;
-        }
-        .rules-box {
-            background-color: #ecfdf5;
-            border: 1px solid #0d9488;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 30px;
-            text-align: left;
-        }
-
-        /* --- Game Layout --- */
-        #game-screen {
-            display: none;
-        }
-        .statement-container {
-            border: 2px solid #ccfbf1;
-            padding: 20px;
-            border-radius: 12px;
-            background-color: #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Statement Sections */
-        .statement-section {
-            margin-bottom: 25px;
-            padding: 15px;
-            border-bottom: 1px solid #99f6e4;
-        }
-        .section-title {
-            font-size: 1.4em;
-            font-weight: 800;
-            color: #0f766e;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-        }
-
-        /* Line Items */
-        .line-item {
-            padding: 8px 15px;
-            margin-bottom: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 4px;
-            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
-            font-weight: 500;
-        }
-        .item-details {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Styles for clickable/error items */
-        .line-item[data-status*="error"] {
-             cursor: pointer;
-        }
-
-        /* Classification Error (Yellow Dashed) */
-        .line-item[data-status="classification-error"] {
-            background-color: #fef9c3; /* Light yellow */
-            border: 2px dashed #eab308; /* Yellow dashed border */
-            box-shadow: 0 0 5px rgba(234, 179, 8, 0.5);
-        }
-        .line-item[data-status="classification-error"]:hover {
-            background-color: #fde047;
-            transform: translateY(-1px);
-        }
-
-        /* Numerical Error (Red Dashed) */
-        .line-item[data-status="numerical-error"] {
-            background-color: #fee2e2; /* Light red/pink background */
-            border: 2px dashed #dc2626; /* Red dashed border */
-            box-shadow: 0 0 5px rgba(220, 38, 38, 0.5);
-        }
-        .line-item[data-status="numerical-error"]:hover {
-            background-color: #fca5a5;
-            transform: translateY(-1px);
-        }
-
-        /* Mixed Error (Purple Dashed) */
-        .line-item[data-status="mixed-error"] {
-            background-color: #f3e8ff; /* Light purple */
-            border: 2px dashed #a855f7; /* Purple dashed border */
-            box-shadow: 0 0 5px rgba(168, 85, 247, 0.5);
-        }
-        .line-item[data-status="mixed-error"]:hover {
-            background-color: #e9d5ff;
-            transform: translateY(-1px);
-        }
-
-        /* Fixed Items (Green) */
-        .line-item[data-status*="fixed"] {
-            background-color: #d1fae5; /* Green for fixed item */
-            color: #065f46;
-            cursor: default;
-            border: 1px solid #10b981;
-        }
-
-        /* Total Lines */
-        .total-line {
-            font-weight: 800;
-            font-size: 1.1em;
-            padding: 10px 15px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            border-top: 2px double #0d9488;
-            display: flex;
-            justify-content: space-between;
-            background-color: #ccfbf1;
-            border-radius: 4px;
-        }
-        .net-income {
-            font-weight: 800;
-            font-size: 1.5em;
-            background-color: #fff;
-            border: 3px solid #0d9488; /* Start with teal border */
-            color: #0f766e;
-            margin-top: 20px;
-            padding: 15px;
-            text-align: center;
-            border-radius: 8px;
-        }
-
-        /* Modal/Dialog Styling */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        .modal-overlay.visible {
-            visibility: visible;
-            opacity: 1;
-        }
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        /* Responsive overlay positioning */
+        .overlay-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 90%;
             max-width: 450px;
-            animation: fadeIn 0.3s;
-        }
-        .modal-content h3 {
-            color: #0f766e;
-            margin-top: 0;
-            border-bottom: 2px solid #ccfbf1;
-            padding-bottom: 10px;
-        }
-        .category-option {
-            display: block;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #0d9488;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.1s;
-            font-weight: 600;
-        }
-        .category-option:hover {
-            background-color: #ccfbf1;
-        }
-        .modal-close-btn {
-            float: right;
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #9ca3af;
-        }
-
-        /* Input Styles */
-        .modal-input {
-            padding: 10px;
-            border: 2px solid #3b82f6;
-            border-radius: 6px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-
-        /* Results Screen */
-        #results-screen {
-            display: none;
-            text-align: center;
-            padding: 50px 0;
-        }
-        .score-card {
-            background-color: #ecfdf5;
-            border: 4px solid #0d9488;
-            border-radius: 12px;
-            padding: 30px;
-            margin-top: 30px;
-            display: inline-block;
-            box-shadow: 0 10px 20px rgba(13, 148, 136, 0.2);
-        }
-        .score-item {
-            font-weight: 600;
-        }
-        
-        /* Debrief Styles */
-        #audit-debrief {
-            margin-top: 40px;
-            text-align: left;
-            padding: 20px;
-            border-top: 2px solid #0d9488;
-        }
-        .debrief-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        .debrief-table th, .debrief-table td {
-            border: 1px solid #e0f2f1;
-            padding: 10px;
-            text-align: left;
-            font-size: 0.9em;
-        }
-        .debrief-table th {
-            background-color: #0d9488;
-            color: white;
-            font-weight: 700;
-        }
-        .debrief-table tr:nth-child(even) {
-            background-color: #f0fdfa;
-        }
-        .highlight-tax {
-            background-color: #ffedd5; /* Light orange for tax calculation */
-            border: 2px solid #f97316;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: 600;
-            margin-top: 20px;
-        }
-        
-        /* Modal Feedback Style for better visibility */
-        .feedback-error {
-            background-color: #fef2f2; /* Light red background */
-            color: #dc2626; /* Strong red text */
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #f87171;
-            font-weight: 700;
-            animation: pulse-red 0.5s ease-in-out;
-        }
-        
-        @keyframes pulse-red {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.01); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
-<body>
-    <div class="container">
+<body class="p-4 sm:p-8 flex items-center justify-center min-h-screen">
 
-        <!-- Start Screen -->
-        <div id="start-screen">
-            <h1>Level 3: Comprehensive Audit 🤯</h1>
-            <h2>Find ALL 9 Hidden Errors</h2>
+    <!-- Firestore Configuration Placeholders (Required for Canvas Environment) -->
+    <script type="module">
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const authToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-            <p style="font-size:1.1em; margin-bottom:10px;">Enter your name to start the most complex assignment:</p>
-            <input type="text" id="name-input" placeholder="Senior Auditor" value="Senior Auditor" maxlength="30">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            if (authToken) {
+                signInWithCustomToken(auth, authToken).catch(e => console.error("Firebase Auth Error:", e));
+            } else {
+                signInAnonymously(auth).catch(e => console.error("Firebase Anonymous Auth Error:", e));
+            }
+        } catch (e) {
+            console.warn("Firebase initialization skipped:", e);
+        }
+    </script>
+    
+    <!-- Main Game Container -->
+    <div class="w-full max-w-4xl flex flex-col items-center space-y-4 relative">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-teal-400 text-shadow-light uppercase tracking-widest">
+            The Profit Path
+        </h1>
+        <p class="text-teal-200 text-lg">A Financial Runner Game</p>
 
-            <button class="primary-btn" onclick="startChallenge()">Start Comprehensive Audit</button>
-
-            <div class="rules-box">
-                <h2>The Rules of Complexity</h2>
-                <ol style="padding-left: 20px; line-height: 1.6;">
-                    <li>The Mission: The Income Statement has **9 total errors** (Numerical, Classification, Omission, Inclusion).</li>
-                    <li>Error Types:
-                        <ul>
-                            <li>**Yellow Dashed:** **Classification Error** (Wrong section) - Click to reclassify.</li>
-                            <li>**Red Dashed:** **Numerical Error** (Wrong dollar amount) - Click to correct the value.</li>
-                            <li>**Purple Dashed:** **Mixed Error** (Both classification AND numerical error) - Click to fix both.</li>
-                        </ul>
-                    </li>
-                    <li>**Special Rule: Income Tax Expense** (A12) is initially incorrect. You must first fix **all other 8 errors** to correctly calculate the Earnings Before Tax (EBT), and then apply a **25% tax rate** to EBT to find the final correct Net Income.</li>
-                    <li>**Inclusion/Omission:** If an item shouldn't be here (like **Dividends Paid**), set its value to **0**. If an item is missing, you must find and correct it (see initial list setup).</li>
-                </ol>
+        <!-- Scoreboard / Status Bar -->
+        <div class="w-full flex justify-between p-3 bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+            <div id="playerNameDisplay" class="text-xl font-bold text-blue-400">
+                Player: Player
+            </div>
+            <div id="netIncomeDisplay" class="text-xl font-bold text-green-400">
+                Net Income: $0
+            </div>
+            <div id="strikesDisplay" class="text-xl font-bold text-red-400">
+                Losses: 0 / 3
             </div>
         </div>
 
-        <!-- Game Screen -->
-        <div id="game-screen">
-            <h1 id="game-title"></h1>
-            <div id="score-display" style="text-align:right; font-weight:bold; margin-bottom:10px; font-size:1.1em;">Errors Fixed: 0/9</div>
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas" width="800" height="400" class="w-full max-w-full rounded-xl"></canvas>
 
-            <div class="statement-container">
-                <div id="statement-structure">
-
-                    <!-- REVENUE SECTION -->
-                    <div id="revenue-section" class="statement-section" data-section-name="Revenue">
-                        <div class="section-title">Revenue</div>
-                        <div class="line-items-container"></div>
-                    </div>
-
-                    <!-- COGS SECTION -->
-                    <div id="cogs-section" class="statement-section" data-section-name="COGS">
-                        <div class="section-title">Cost of Goods Sold (COGS)</div>
-                        <div class="line-items-container"></div>
-                    </div>
-
-                    <div id="gross-profit" class="total-line">
-                        <span>Gross Profit</span>
-                        <span id="value-GrossProfit">0</span>
-                    </div>
-
-                    <!-- OPERATING EXPENSES SECTION -->
-                    <div id="opex-section" class="statement-section" data-section-name="OpEx">
-                        <div class="section-title">Operating Expenses (OpEx)</div>
-                        <div class="line-items-container"></div>
-                    </div>
-
-                    <div id="operating-income" class="total-line">
-                        <span>Operating Income (EBIT)</span>
-                        <span id="value-OperatingIncome">0</span>
-                    </div>
-
-                    <!-- NON-OPERATING/OTHER SECTION -->
-                    <div id="non-op-section" class="statement-section" data-section-name="Non-Op">
-                        <div class="section-title">Non-Operating / Other</div>
-                        <div class="line-items-container"></div>
-                    </div>
-                    
-                    <div id="ebt" class="total-line" style="border-top: 1px solid #0d9488;">
-                        <span>Earnings Before Tax (EBT)</span>
-                        <span id="value-EBT">0</span>
-                    </div>
-
-                    <div id="net-income-final" class="net-income">
-                        <span>NET INCOME:</span>
-                        <span id="value-NetIncome">$0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="feedback" style="background-color: #ecfdf5; padding: 15px; border-radius: 8px; margin-top: 20px; font-weight: 600; text-align: center;">
-                Awaiting your audit... Fix all 9 errors, including the Tax calculation rule!
-            </div>
-
-            <div class="controls" style="text-align: center;">
-                <button class="primary-btn check-btn" onclick="checkNetIncome()">Verify Final Net Income 🧮</button>
-            </div>
-        </div>
-
-        <!-- Correction Modal (Handles both Numerical and Classification) -->
-        <div id="correction-modal-overlay" class="modal-overlay" onclick="hideCorrectionModal()">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <button class="modal-close-btn" onclick="hideCorrectionModal()">×</button>
-                <h3 id="modal-title">Correction Required</h3>
-                <p id="modal-item-name" style="font-weight:700; font-size:1.1em;"></p>
-
-                <!-- Classification Selector -->
-                <div id="classification-panel" class="mb-4">
-                    <p class="font-bold mb-2 text-sm text-gray-600">Step 1: Reclassify Item (If necessary)</p>
-                    <select id="correct-category-select" class="modal-input" style="border: 2px solid #0d9488;">
-                        <option value="Revenue">Revenue</option>
-                        <option value="COGS">Cost of Goods Sold (COGS)</option>
-                        <option value="OpEx">Operating Expenses (OpEx)</option>
-                        <option value="Non-Op">Non-Operating / Other</option>
-                    </select>
-                </div>
-
-                <!-- Numerical Input -->
-                <div id="numerical-panel" class="mb-4">
-                    <p class="font-bold mb-2 text-sm text-gray-600">Step 2: Correct Value (Use minus sign for costs/expenses, 0 to remove)</p>
-                    <input type="number" id="correct-value-input" placeholder="e.g., 1500000 or -50000" class="modal-input" style="border: 2px solid #3b82f6;">
-                </div>
+        <!-- Game Overlay (Multiple States) -->
+        <div id="gameOverlay" class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center rounded-xl transition-opacity duration-300 pointer-events-none opacity-0">
+            <div id="messageBox" class="overlay-center bg-white p-6 sm:p-8 rounded-xl shadow-2xl text-center">
                 
-                <p id="modal-guidance" class="text-xs italic text-gray-500 mb-4"></p>
-
-                <button class="primary-btn check-btn" style="width:100%; margin-top:0; background-color: #0d9488;" onclick="submitCorrection()">Apply Corrections</button>
-
-                <!-- ERROR FEEDBACK ELEMENT - Now uses the 'feedback-error' class on failure -->
-                <div id="modal-feedback" style="margin-top: 10px; font-weight: 600; text-align: center;"></div>
-            </div>
-        </div>
-
-        <!-- Hint Modal -->
-        <div id="hint-modal-overlay" class="modal-overlay" onclick="hideHintModal()">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <button class="modal-close-btn" onclick="hideHintModal()">×</button>
-                <h3>Financial Concept Hint</h3>
-                <p id="hint-item-name" style="font-weight:700; font-size:1.1em;"></p>
-                <div id="hint-content" style="padding: 10px 0; font-size: 1.05em; line-height: 1.4;">
-                    <!-- Definition will be placed here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Results Screen -->
-        <div id="results-screen">
-            <h1>🎉 Audit Complete! 🎉</h1>
-            <h2 id="results-greeting"></h2>
-
-            <div class="score-card">
-                <div class="score-item">Errors Corrected: <span id="result-fixed-errors"></span>/9</div>
-                <div class="score-item">Calculated Net Income: <span id="result-net-income"></span></div>
-            </div>
-
-            <p id="final-message" style="font-size: 1.2em; margin-top: 20px; font-weight: 600; color: #065f46;"></p>
-
-            <!-- AUDIT DEBRIEF SECTION ADDED HERE -->
-            <div id="audit-debrief">
-                <h2 style="text-align:center; color:#0d9488; margin-bottom:20px;">Detailed Audit Debrief & Case Study Solution</h2>
+                <!-- Content for different states will be injected here -->
                 
-                <h3 style="font-size:1.2em; font-weight:700; margin-bottom:10px;">Summary of 8 Non-Tax Corrections:</h3>
-                <table class="debrief-table">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Initial Value/Placement</th>
-                            <th>Final Correct Action</th>
-                            <th>Net Impact on EBT</th>
-                        </tr>
-                    </thead>
-                    <tbody id="debrief-table-body">
-                        <!-- Content rendered by JavaScript -->
-                    </tbody>
-                </table>
-
-                <h3 style="font-size:1.2em; font-weight:700; margin-top:25px;">Final Calculation (Error #9: Income Tax)</h3>
-                <p style="margin-bottom:10px;">
-                    After fixing the 8 non-tax errors, the **Earnings Before Tax (EBT)** was calculated correctly.
-                </p>
-                <div class="highlight-tax">
-                    <p><strong>Corrected EBT:</strong> <span id="debrief-ebt-value">$445,000</span></p>
-                    <p><strong>Required Tax Rate:</strong> 25%</p>
-                    <p><strong>Correct Income Tax Expense:</strong> $445,000 × -0.25 = <strong id="debrief-tax-value">($111,250)</strong></p>
-                </div>
-                <p style="font-size:1.1em; font-weight:700; margin-top:15px; color:#065f46;">
-                    Resulting Final Net Income: <span id="debrief-final-ni">$333,750</span>
-                </p>
-
             </div>
-            <!-- END DEBRIEF SECTION -->
-
-            <button class="primary-btn" style="margin-top: 40px;" onclick="location.reload()">Start New Audit</button>
+        </div>
+        
+        <!-- Controls Indicator -->
+        <div class="text-gray-400 text-sm mt-4 p-2 bg-gray-800 rounded-lg">
+            Controls: [SPACE] or [↑] to Jump | [↓] to Duck
         </div>
     </div>
 
     <script>
-        // --- CONSTANTS & GAME DATA (Level 3: Comprehensive Focus) ---
+        // --- GAME CORE LOGIC ---
 
-        // The initial list includes all items currently on the statement (even if incorrectly classified/valued)
-        // PLUS items that were OMITTED (indicated by value: 0 and initialCategory: 'OMITTED').
-        const LINE_ITEMS_DATA = [
-            // A1: Numerical Error
-            { id: "A1", name: "Sales Revenue", initialCategory: "Revenue", value: 1400000, correctCategory: "Revenue", correctValue: 1500000, errorType: "Numerical" },
-            
-            // A2: Correct Item
-            { id: "A2", name: "Salaries Expense", initialCategory: "OpEx", value: -200000, correctCategory: "OpEx", correctValue: -200000, errorType: "None" },
-
-            // A3: Numerical Error
-            { id: "A3", name: "Cost of Goods Sold", initialCategory: "COGS", value: -650000, correctCategory: "COGS", correctValue: -700000, errorType: "Numerical" },
-            
-            // A4: Correct Item
-            { id: "A4", name: "Rent Expense (Office)", initialCategory: "OpEx", value: -80000, correctCategory: "OpEx", correctValue: -80000, errorType: "None" },
-
-            // A13: Numerical Error
-            { id: "A13", name: "Amortization Expense", initialCategory: "OpEx", value: -10000, correctCategory: "OpEx", correctValue: -20000, errorType: "Numerical" },
-
-            // A6: Correct Item
-            { id: "A6", name: "Depreciation Expense", initialCategory: "OpEx", value: -40000, correctCategory: "OpEx", correctValue: -40000, errorType: "None" },
-
-            // A7: Inclusion Error (Should be removed, value set to 0) - Mixed Error
-            { id: "A7", name: "Dividends Paid", initialCategory: "Non-Op", value: -50000, correctCategory: "RE", correctValue: 0, errorType: "Mixed", guidance: "Dividends are a distribution of earnings, not an expense on the Income Statement (RE = Retained Earnings)." },
-            
-            // A8: Classification Error
-            { id: "A8", name: "Consulting Fee Income", initialCategory: "Non-Op", value: 10000, correctCategory: "Revenue", correctValue: 10000, errorType: "Classification" },
-
-            // A9: Correct Item
-            { id: "A9", name: "Gain on Asset Sale", initialCategory: "Non-Op", value: 5000, correctCategory: "Non-Op", correctValue: 5000, errorType: "None" },
-
-            // A11: Classification Error
-            { id: "A11", name: "Legal Settlement Expense", initialCategory: "OpEx", value: -30000, correctCategory: "Non-Op", correctValue: -30000, errorType: "Classification" },
-
-            // A15: Classification Error
-            { id: "A15", name: "Inventory Write-down", initialCategory: "COGS", value: -15000, correctCategory: "OpEx", correctValue: -15000, errorType: "Classification" },
-
-            // OMISSION ERRORS (Start with 0 value/category in initial setup)
-            { id: "A10", name: "Bad Debt Expense", initialCategory: "OMITTED", value: 0, correctCategory: "OpEx", correctValue: -10000, errorType: "Numerical", guidance: "This cost must be added to the appropriate section." },
-
-            { id: "A14", name: "Insurance Refund", initialCategory: "OMITTED", value: 0, correctCategory: "Non-Op", correctValue: 25000, errorType: "Numerical", guidance: "This item must be added to the appropriate section." },
-
-            // A12: Formula-Based Error (Must be fixed last)
-            { id: "A12", name: "Income Tax Expense (25%)", initialCategory: "Non-Op", value: -50000, correctCategory: "Non-Op", correctValue: 'CALCULATED', errorType: "Formula", guidance: "This value depends on EBT. Fix everything else first!" }
-        ];
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameOverlay = document.getElementById('gameOverlay');
+        const messageBox = document.getElementById('messageBox');
+        const netIncomeDisplay = document.getElementById('netIncomeDisplay');
+        const strikesDisplay = document.getElementById('strikesDisplay');
+        const playerNameDisplay = document.getElementById('playerNameDisplay');
         
-        // Data for the audit debrief table
-        const AUDIT_DEBRIEF_DATA = [
-            { id: "A1", name: "Sales Revenue", initial: "$1,400,000 (Understated)", correct: "$1,500,000 in Revenue", action: "Value corrected by $100,000 (unrecorded sales).", impact: "+$100,000" },
-            { id: "A3", name: "Cost of Goods Sold", initial: "($650,000) (Understated)", correct: "($700,000) in COGS", action: "Value corrected by -$50,000 (missing factory costs).", impact: "-$50,000" },
-            { id: "A13", name: "Amortization Expense", initial: "($10,000)", correct: "($20,000) in OpEx", action: "Value corrected by -$10,000 (incorrect amortization schedule).", impact: "-$10,000" },
-            { id: "A7", name: "Dividends Paid", initial: "($50,000) in Non-Op", correct: "$0 (Removed)", action: "Inclusion Error: Item set to $0 and removed; it belongs on the Retained Earnings statement.", impact: "+$50,000" },
-            { id: "A10", name: "Bad Debt Expense", initial: "Omitted ($0)", correct: "($10,000) in OpEx", action: "Omission Error: Item added to Operating Expenses (OpEx).", impact: "-$10,000" },
-            { id: "A14", name: "Insurance Refund", initial: "Omitted ($0)", correct: "$25,000 in Non-Op", action: "Omission Error: Item added to Non-Operating income.", impact: "+$25,000" },
-            { id: "A8", name: "Consulting Fee Income", initial: "$10,000 in Non-Op", correct: "$10,000 in Revenue", action: "Classification Error: Reclassified to Revenue (core business income).", impact: "$0" },
-            { id: "A15", name: "Inventory Write-down", initial: "($15,000) in COGS", correct: "($15,000) in OpEx", action: "Classification Error: Reclassified to OpEx (periodic inventory adjustment).", impact: "$0" },
-            { id: "A11", name: "Legal Settlement Exp.", initial: "($30,000) in OpEx", correct: "($30,000) in Non-Op", action: "Classification Error: Reclassified to Non-Operating (unusual/non-recurring).", impact: "$0" }
+        let GROUND_Y = canvas.height - 50; // Dynamic ground position
+        let gameState = {
+            playerName: 'Player',
+            isRunning: false,
+            netIncome: 0,
+            strikes: 0,
+            gameSpeed: 6,
+            itemSpawnRate: 150, 
+            lastTime: 0,
+            timeSinceLastItem: 0,
+            animationFrameId: null,
+            maxStrikes: 3
+        };
+
+        const player = {
+            x: 50,
+            y: GROUND_Y - 50,
+            width: 50,
+            height: 50,
+            color: '#10b981', // Teal/Green
+            isJumping: false,
+            isDucking: false,
+            yVelocity: 0,
+            gravity: 1.8,
+            jumpStrength: -30,
+            initialHeight: 50,
+            duckHeight: 25
+        };
+
+        const items = [];
+        const itemTemplates = [
+            // Revenue (Collectibles, Positive) - High Jump to get (Y: -130)
+            { type: 'Revenue', label: 'Sales', value: 100, color: '#fcd34d', isCollectible: true, width: 30, height: 30, y: GROUND_Y - 130, draw: drawCoin },
+            { type: 'Revenue', label: 'Service', value: 50, color: '#f59e0b', isCollectible: true, width: 25, height: 25, y: GROUND_Y - 90, draw: drawCoin },
+            
+            // Cost of Goods Sold (Obstacles, Negative) - Jump to avoid (Y: -50)
+            { type: 'COGS', label: 'Materials', value: -75, color: '#9d3110', isCollectible: false, width: 35, height: 50, y: GROUND_Y - 50, draw: drawJaggedObstacle },
+            { type: 'COGS', label: 'Labor', value: -50, color: '#b45309', isCollectible: false, width: 30, height: 40, y: GROUND_Y - 40, draw: drawJaggedObstacle },
+
+            // Operating Expenses (Obstacles, Negative) - Duck to avoid (Y: -80, Mid-air)
+            { type: 'OpEx', label: 'Rent', value: -150, color: '#dc2626', isCollectible: false, width: 40, height: 20, y: GROUND_Y - 100, draw: drawFlyingArrow },
+            { type: 'OpEx', label: 'Marketing', value: -75, color: '#f87171', isCollectible: false, width: 35, height: 18, y: GROUND_Y - 120, draw: drawFlyingArrow },
+
+            // Major Loss (Strike + High Penalty) - Must be avoided
+            { type: 'MajorLoss', label: 'Lawsuit', value: -500, color: '#7f1d1d', isCollectible: false, width: 60, height: 60, isMajor: true, strike: true, y: GROUND_Y - 60, draw: drawMajorLossX }
         ];
 
+        // --- DRAWING SHAPES (FUN AND COLORFUL) ---
 
-        const ERROR_ITEMS = ["A1", "A3", "A7", "A8", "A13", "A11", "A15", "A10", "A14", "A12"];
-        const TAX_ITEM_ID = "A12";
-        const TAX_RATE = 0.25;
-        const TOTAL_ERRORS_COUNT = ERROR_ITEMS.length - 1; // 9 errors excluding the formula error (A12) that depends on all others
-
-        const CORRECT_NET_INCOME = 333750;
-
-        // --- HARDCODED HINT DEFINITIONS (Updated to be more comprehensive) ---
-        const HINT_DEFINITIONS = {
-            "Sales Revenue": "The total amount earned from primary business activities. Check for sales that were recorded incorrectly.",
-            "Salaries Expense": "Compensation paid to administrative or general employees. Part of OpEx.",
-            "Cost of Goods Sold": "The direct costs of producing goods/services sold. Includes direct materials, labor, and manufacturing overhead. Check for missing factory-related costs.",
-            "Rent Expense (Office)": "Cost for office premises, part of general overhead (OpEx).",
-            "Amortization Expense": "The systematic reduction of the value of intangible assets over their useful life. Part of OpEx.",
-            "Depreciation Expense": "Non-cash expense allocating the cost of tangible assets (like equipment) over time. Part of OpEx.",
-            "Dividends Paid": "Distributions to shareholders. **This is NOT an expense** and should not be on the Income Statement.",
-            "Consulting Fee Income": "Income derived from providing advice. If this is not the company's core business, it belongs to Non-Operating. **If it IS the core business, it's Revenue**.",
-            "Gain on Asset Sale": "Profit realized from selling a non-current asset for more than its book value. A Non-Operating item.",
-            "Legal Settlement Expense": "A one-time, unusual cost incurred due to a lawsuit or dispute. Often classified as Non-Operating due to its irregularity.",
-            "Inventory Write-down": "Adjusting inventory value down to its market value. **Typically an OpEx** or sometimes COGS, depending on GAAP rules, but usually OpEx.",
-            "Bad Debt Expense": "The estimated loss from customers who will not pay their accounts receivable. **This is an unavoidable operating cost (OpEx).**",
-            "Insurance Refund": "A cash inflow from an unexpected or unusual event, such as a refund on a policy premium. Typically Non-Operating.",
-            "Income Tax Expense (25%)": "The government charge. **This is calculated as a percentage of Earnings Before Tax (EBT).**"
-        };
-
-        let state = {
-            playerName: "Senior Auditor",
-            errorsFixed: 0,
-            totalErrors: TOTAL_ERRORS_COUNT,
-            currentPlacement: {},
-            currentValue: {},
-            errorStatus: {},
-            activeItemId: null
-        };
-
-        let itemElements = {};
-
-        // --- UTILITY FUNCTIONS ---
-        function formatCurrency(value) {
-            const formattedValue = Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-            return (value < 0 ? `($${formattedValue})` : `$${formattedValue}`);
-        }
-
-        function calculateSubtotals(currentPlacement, currentValue) {
-            let totals = {
-                "Revenue": 0, "COGS": 0, "OpEx": 0, "Non-Op": 0,
-                "GrossProfit": 0, "OperatingIncome": 0, "EBT": 0, "NetIncome": 0
-            };
-
-            LINE_ITEMS_DATA.forEach(item => {
-                const category = currentPlacement[item.id];
-                const value = currentValue[item.id] !== undefined ? currentValue[item.id] : item.value;
-
-                if (category && category !== 'RE') { // Skip Retained Earnings items
-                    totals[category] += value;
-                }
-            });
-
-            totals.GrossProfit = totals.Revenue + totals.COGS;
-            totals.OperatingIncome = totals.GrossProfit + totals.OpEx;
-            totals.EBT = totals.OperatingIncome + totals["Non-Op"];
+        function drawBusinessIcon(x, y, w, h) {
+            // Draw a simple, stylized chart icon (Upward Trend)
+            ctx.fillStyle = '#065f46'; // Dark Teal
+            ctx.fillRect(x, y + h * 0.5, w, h * 0.5); // Base
+            ctx.fillStyle = '#10b981'; // Bright Teal
             
-            return totals;
+            // Draw upward bars
+            ctx.fillRect(x + 5, y + h * 0.3, 10, h * 0.7);
+            ctx.fillRect(x + 20, y, 10, h);
+            ctx.fillRect(x + 35, y + h * 0.5, 10, h * 0.5);
+            
+            // Add a white highlight line (the actual "business")
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x + 5, y + h * 0.3);
+            ctx.lineTo(x + 20, y);
+            ctx.lineTo(x + 35, y + h * 0.5);
+            ctx.stroke();
         }
 
-        // --- GAME FLOW FUNCTIONS ---
-        function startChallenge() {
-            const nameInput = document.getElementById('name-input').value.trim();
-            if (nameInput) {
-                state.playerName = nameInput;
+        function drawCoin(item) {
+            // Gold Coin
+            ctx.beginPath();
+            ctx.arc(item.x + item.width / 2, item.y + item.height / 2, item.width / 2, 0, Math.PI * 2);
+            ctx.fillStyle = item.color;
+            ctx.fill();
+            // Draw dollar sign
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.font = '16px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('$', item.x + item.width / 2, item.y + item.height / 2 + 5);
+        }
+
+        function drawJaggedObstacle(item) {
+            // Brown/Orange COGS (spikes)
+            ctx.fillStyle = item.color;
+            ctx.beginPath();
+            ctx.moveTo(item.x, item.y + item.height);
+            ctx.lineTo(item.x + item.width, item.y + item.height);
+            ctx.lineTo(item.x + item.width * 0.75, item.y);
+            ctx.lineTo(item.x + item.width * 0.5, item.y + item.height * 0.5);
+            ctx.lineTo(item.x + item.width * 0.25, item.y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawFlyingArrow(item) {
+            // Red Operating Expense (Downward Arrow)
+            ctx.fillStyle = item.color;
+            ctx.beginPath();
+            // Arrow body
+            ctx.fillRect(item.x + item.width * 0.3, item.y, item.width * 0.4, item.height);
+            // Arrowhead (triangle)
+            ctx.moveTo(item.x, item.y);
+            ctx.lineTo(item.x + item.width, item.y);
+            ctx.lineTo(item.x + item.width / 2, item.y + item.height * 1.5);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawMajorLossX(item) {
+            // Major Loss (Red X)
+            ctx.strokeStyle = item.color;
+            ctx.lineWidth = 10;
+            
+            ctx.beginPath();
+            ctx.moveTo(item.x, item.y);
+            ctx.lineTo(item.x + item.width, item.y + item.height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(item.x + item.width, item.y);
+            ctx.lineTo(item.x, item.y + item.height);
+            ctx.stroke();
+        }
+
+        function drawPlayer() {
+            // Use the custom drawing function
+            drawBusinessIcon(player.x, player.y, player.width, player.height);
+        }
+
+        function drawGround() {
+            // Ground layer (Darker blue/gray for accounting books)
+            ctx.fillStyle = '#374151';
+            ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+
+            // Ground line (The "path")
+            ctx.strokeStyle = '#546b88'; 
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(0, GROUND_Y);
+            ctx.lineTo(canvas.width, GROUND_Y);
+            ctx.stroke();
+
+            // Label the ground as "Financial Path"
+            ctx.fillStyle = '#f9fafb'; // White text
+            ctx.font = '16px Inter';
+            ctx.textAlign = 'left';
+            ctx.fillText('THE FINANCIAL PATH', 10, GROUND_Y - 15);
+        }
+
+        function drawItems() {
+            items.forEach(item => {
+                // Use the item's specific draw function
+                item.draw(item);
+                
+                // Draw Label/Value above the item
+                ctx.fillStyle = item.isCollectible ? '#059669' : '#b91c1c'; // Green for revenue, Red for expenses
+                ctx.font = '10px Inter';
+                ctx.textAlign = 'center';
+                const displayText = item.value > 0 ? `+${item.value}` : `${item.value}`;
+                ctx.fillText(item.label, item.x + item.width / 2, item.y - 15);
+                ctx.fillText(displayText, item.x + item.width / 2, item.y - 5);
+            });
+        }
+
+        function updateScoreboard() {
+            playerNameDisplay.textContent = `Player: ${gameState.playerName}`;
+            netIncomeDisplay.textContent = `Net Income: $${gameState.netIncome.toLocaleString()}`;
+            strikesDisplay.textContent = `Losses: ${gameState.strikes} / ${gameState.maxStrikes}`;
+
+            // Conditional coloring for Net Income
+            if (gameState.netIncome >= 1000) {
+                netIncomeDisplay.className = 'text-xl font-bold text-green-400';
+            } else if (gameState.netIncome < 0) {
+                netIncomeDisplay.className = 'text-xl font-bold text-red-500';
+            } else {
+                netIncomeDisplay.className = 'text-xl font-bold text-yellow-400';
             }
-            startGame();
         }
 
+        // --- GAME MECHANICS ---
+
+        function spawnItem() {
+            const template = itemTemplates[Math.floor(Math.random() * itemTemplates.length)];
+            const newItem = {
+                ...template,
+                x: canvas.width,
+                y: template.y, 
+                width: template.width,
+                height: template.height,
+                collected: false
+            };
+            items.push(newItem);
+        }
+
+        function checkCollision(item) {
+            // Simplified AABB collision detection, using player's current dynamic height
+            if (
+                player.x < item.x + item.width &&
+                player.x + player.width > item.x &&
+                player.y < item.y + item.height &&
+                player.y + player.height > item.y
+            ) {
+                return true;
+            }
+            return false;
+        }
+
+        function handleItemEffect(item) {
+            item.collected = true;
+            gameState.netIncome += item.value;
+
+            // Visual feedback
+            const feedbackText = item.value > 0 ? `+${item.value}` : `${item.value}`;
+            console.log(`${item.label}: ${feedbackText}`);
+
+            if (item.strike) {
+                gameState.strikes++;
+                canvas.style.backgroundColor = '#fef2f2'; // Very light red flash
+                setTimeout(() => canvas.style.backgroundColor = '#ffffff', 100);
+            } else if (item.value > 0) {
+                 canvas.style.backgroundColor = '#ecfdf5'; // Very light green flash
+                setTimeout(() => canvas.style.backgroundColor = '#ffffff', 50);
+            }
+        }
+
+        function updatePlayer() {
+            // Apply gravity/jump
+            if (player.isJumping) {
+                player.yVelocity += player.gravity;
+                player.y += player.yVelocity;
+            }
+
+            // Stop jumping when player hits the ground
+            if (player.y >= GROUND_Y - player.height) {
+                player.isJumping = false;
+                player.yVelocity = 0;
+                player.y = GROUND_Y - player.height;
+            }
+
+            // Handle ducking dimensions (Adjust y position immediately when ducking/unducking)
+            const newHeight = player.isDucking ? player.duckHeight : player.initialHeight;
+            if (newHeight !== player.height) {
+                // Adjust Y to keep the player on the ground when ducking/standing
+                player.y += (player.height - newHeight);
+                player.height = newHeight;
+            }
+            // Ensure player remains on the ground if not jumping
+            if (!player.isJumping) {
+                player.y = GROUND_Y - player.height;
+            }
+        }
+
+        function updateItems(deltaTime) {
+            // Spawn new item
+            gameState.timeSinceLastItem += deltaTime;
+            if (gameState.timeSinceLastItem > gameState.itemSpawnRate) {
+                spawnItem();
+                // Speed up spawn rate based on game speed
+                gameState.itemSpawnRate = Math.random() * 700 + 700 - (gameState.gameSpeed * 10);
+                gameState.timeSinceLastItem = 0;
+            }
+            
+            // Move and check items
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                item.x -= gameState.gameSpeed;
+
+                if (!item.collected && checkCollision(item)) {
+                    handleItemEffect(item);
+                }
+
+                // Remove items that go off screen or have been collected
+                if (item.x + item.width < 0 || item.collected) {
+                    items.splice(i, 1);
+                }
+            }
+        }
+
+        // --- INPUTS & CONTROLS ---
+
+        function jump() {
+            if (!player.isJumping && gameState.isRunning) {
+                player.isJumping = true;
+                player.yVelocity = player.jumpStrength;
+                player.isDucking = false;
+            }
+        }
+        
+        function duck() {
+            if (gameState.isRunning && !player.isJumping) {
+                player.isDucking = true;
+            }
+        }
+        
+        function unduck() {
+            player.isDucking = false;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                jump();
+            } else if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                duck();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                unduck();
+            }
+        });
+
+        // Touch controls
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touchY = e.touches[0].clientY;
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            // Touch top half to jump, bottom half to duck
+            if (touchY < canvasRect.top + canvasRect.height / 2) {
+                jump();
+            } else {
+                duck();
+            }
+        });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            unduck();
+        });
+
+
+        // --- GAME FLOW CONTROL ---
+
+        function showOverlay(title, contentHTML, buttonText, buttonAction) {
+            messageBox.innerHTML = `
+                <h2 class="text-3xl font-black text-gray-800 mb-4">${title}</h2>
+                <div class="text-gray-600 mb-6">${contentHTML}</div>
+                <button id="overlayButton" class="btn-game bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">
+                    ${buttonText}
+                </button>
+            `;
+            document.getElementById('overlayButton').addEventListener('click', buttonAction);
+            gameOverlay.style.opacity = 1;
+            gameOverlay.style.pointerEvents = 'auto';
+        }
+        
+        function showNameInput() {
+            showOverlay(
+                'Welcome, CEO!',
+                `
+                    <p class="mb-4">Please enter your name to start your new business quarter on **The Profit Path**.</p>
+                    <input type="text" id="nameInput" placeholder="Your Name" value="${gameState.playerName}" 
+                           class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-500 text-center font-bold text-gray-800">
+                `,
+                'Continue to Rules',
+                () => {
+                    const name = document.getElementById('nameInput').value.trim();
+                    if (name) {
+                        gameState.playerName = name.substring(0, 15); // Limit name length
+                        showRules();
+                    } else {
+                        alert("Please enter a name to start!");
+                    }
+                }
+            );
+        }
+
+        function showRules() {
+            const rulesHTML = `
+                <div class="text-left space-y-3 font-semibold text-gray-700">
+                    <p class="text-xl text-teal-600 font-extrabold">The Rules of Profit:</p>
+                    <ul class="list-disc list-inside space-y-2 pl-4">
+                        <li>💰 **Revenue (Gold Coins):** **Jump** to collect. Increases Net Income.</li>
+                        <li>🧱 **COGS (Brown Spikes):** **Jump** to avoid. Hitting them reduces Net Income.</li>
+                        <li>📉 **Operating Expenses (Red Arrows):** **Duck** to avoid. Hitting them heavily reduces Net Income.</li>
+                        <li>❌ **Major Losses:** Hitting one gives you **1 Strike** and a huge penalty.</li>
+                    </ul>
+                    <p class="text-base text-red-600 font-bold">Game Over if you get 3 Major Loss Strikes or Net Income drops below -$2000.</p>
+                </div>
+            `;
+            showOverlay(
+                'Quarterly Objectives',
+                rulesHTML,
+                'Start Quarter',
+                startGame
+            );
+        }
+        
+        function showGameOver() {
+            const finalScoreClass = gameState.netIncome >= 0 ? 'text-green-600' : 'text-red-600';
+            const reason = gameState.strikes >= gameState.maxStrikes 
+                ? 'Reason: Too many Major Loss Strikes!' 
+                : 'Reason: Net Income fell below the limit!';
+            
+            const scoreboardHTML = `
+                <div class="p-4 rounded-lg bg-gray-100 border border-gray-300">
+                    <p class="text-xl font-bold text-gray-800">${gameState.playerName}'s Final Results:</p>
+                    <h3 class="text-5xl font-extrabold ${finalScoreClass} my-4">$${gameState.netIncome.toLocaleString()}</h3>
+                    <p class="text-base text-gray-600">${reason}</p>
+                    <p class="text-sm text-red-500 mt-2">Total Major Losses: ${gameState.strikes}</p>
+                </div>
+            `;
+
+            showOverlay(
+                'Quarter Ended!',
+                scoreboardHTML,
+                'Restart Business',
+                startGame
+            );
+        }
+
+        function gameOver() {
+            gameState.isRunning = false;
+            cancelAnimationFrame(gameState.animationFrameId);
+            showGameOver();
+        }
+
+        function resetGame() {
+            gameState.netIncome = 0;
+            gameState.strikes = 0;
+            gameState.gameSpeed = 6;
+            gameState.lastTime = 0;
+            gameState.timeSinceLastItem = 0;
+            items.length = 0;
+            
+            player.isJumping = false;
+            player.isDucking = false;
+            player.y = GROUND_Y - player.height;
+            player.yVelocity = 0;
+            canvas.style.backgroundColor = '#ffffff';
+            
+            updateScoreboard();
+        }
+        
         function startGame() {
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('results-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-
-            document.getElementById('game-title').textContent = `${state.playerName}'s Level 3 Comprehensive Audit 📝`;
-
-            state.currentPlacement = {};
-            state.currentValue = {};
-            state.errorStatus = {};
-            state.errorsFixed = 0;
-            itemElements = {};
-
-            // Initialize Omitted items to a visible (but wrong) category like Revenue so they can be clicked
-            LINE_ITEMS_DATA.forEach(item => {
-                state.currentPlacement[item.id] = item.initialCategory === 'OMITTED' ? 'Revenue' : item.initialCategory;
-                state.currentValue[item.id] = item.value;
-                state.errorStatus[item.id] = false;
-            });
-
-            // Set initial value for A10 and A14 to 0, and place them in the correct section so they are visible and clickable
-            state.currentPlacement['A10'] = 'OpEx'; // Bad Debt Expense is OpEx
-            state.currentValue['A10'] = 0;
-            state.currentPlacement['A14'] = 'Non-Op'; // Insurance Refund is Non-Op
-            state.currentValue['A14'] = 0;
-
-
-            updateScoreAndRender();
+            resetGame();
+            gameState.isRunning = true;
+            gameOverlay.style.opacity = 0;
+            gameOverlay.style.pointerEvents = 'none';
+            gameState.animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        /**
-         * Determines the status of an item (numerical, classification, fixed, or mixed error)
-         */
-        function getItemStatus(itemId) {
-            const item = LINE_ITEMS_DATA.find(i => i.id === itemId);
-            if (!item || item.errorType === 'None') return 'correct';
+        // --- MAIN GAME LOOP ---
+
+        function gameLoop(currentTime) {
+            if (!gameState.isRunning) return;
+
+            const deltaTime = currentTime - gameState.lastTime;
+            gameState.lastTime = currentTime;
+
+            // 1. Clear Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGround(); // Draw background elements first
             
-            // Handle fixed status based on state
-            if (state.errorStatus[itemId]) return 'fixed';
-
-            // Tax item status depends on EBT calculation which is checked in final verification
-            if (itemId === TAX_ITEM_ID) {
-                return state.errorsFixed < TOTAL_ERRORS_COUNT ? 'formula-error' : 'numerical-error';
-            }
-
-
-            const currentCat = state.currentPlacement[itemId];
-            const currentVal = state.currentValue[itemId];
-
-            // Correct final category and value
-            const correctCat = item.correctCategory;
-            const correctVal = item.correctValue;
-
-            // Check if fixed state is reached (Category and Value match the correct final state)
-            const isCatFixed = (currentCat === correctCat || correctCat === 'RE');
-            const isValFixed = (currentVal === correctVal);
-
-            if (isCatFixed && isValFixed) {
-                state.errorStatus[itemId] = true; // Mark fixed
-                return 'fixed';
-            }
-
-
-            // Check errors
-            const isCatWrong = currentCat !== correctCat && correctCat !== 'RE';
-            const isValWrong = currentVal !== correctVal;
+            // 2. Update Game State
+            updatePlayer();
+            updateItems(deltaTime);
+            updateScoreboard();
             
-            // Special handling for A7 (Dividends Paid - Inclusion error)
-            if (itemId === 'A7') {
-                 // Error if it's visible (in Non-Op) and not set to 0. It is a mixed error because it's in the wrong category and has a non-zero value.
-                if (currentCat === 'Non-Op' && currentVal !== 0) {
-                    return 'mixed-error'; 
-                }
-            }
-            
-            // Special handling for A10/A14 (Omission errors - start at 0, must be changed to correctValue AND correctCategory)
-            if (itemId === 'A10' || itemId === 'A14') {
-                if (!isValFixed) {
-                    // Since the item starts at 0, and should be a non-zero value, it's a numerical error.
-                    return 'numerical-error'; 
-                }
+            // Increase speed and difficulty gradually
+            gameState.gameSpeed += 0.0005;
+
+            // 3. Check for Game Over Conditions
+            if (gameState.strikes >= gameState.maxStrikes || gameState.netIncome < -2000) {
+                return gameOver();
             }
 
-            // Standard Numerical/Mixed check
-            if (isCatWrong && isValWrong) return 'mixed-error';
-            if (isValWrong) return 'numerical-error';
-            if (isCatWrong) return 'classification-error';
+            // 4. Draw Elements (Items above ground, Player on top)
+            drawItems();
+            drawPlayer();
 
-
-            return 'correct'; // Fallback for items that should be correct but were marked as errors in the beginning logic
+            // 5. Request next frame
+            gameState.animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        /**
-         * Recalculates the score and triggers UI rendering and totals calculation.
-         */
-        function updateScoreAndRender() {
-            let fixedCount = 0;
+        // --- INITIALIZATION ---
 
-            ERROR_ITEMS.filter(id => id !== TAX_ITEM_ID).forEach(itemId => {
-                const item = LINE_ITEMS_DATA.find(i => i.id === itemId);
-                const currentCat = state.currentPlacement[itemId];
-                const currentVal = state.currentValue[itemId];
-                
-                // Final correct state
-                const correctCat = item.correctCategory;
-                const correctVal = item.correctValue;
-                
-                // Check if item is fixed (Category and Value must match correct final state)
-                let isFixed = (currentCat === correctCat || correctCat === 'RE') && (currentVal === correctVal);
+        window.onload = function() {
+            const updateCanvasSize = () => {
+                const container = document.querySelector('.w-full.max-w-4xl');
+                if (container) {
+                    canvas.width = container.clientWidth;
+                    canvas.height = Math.min(400, container.clientWidth * 0.5); 
+                    
+                    // Update GROUND_Y (let variable)
+                    GROUND_Y = canvas.height - 50;
+                    
+                    // Update player position and item template Y positions relative to the new ground
+                    player.y = GROUND_Y - player.height;
 
-                state.errorStatus[itemId] = isFixed;
-                if (isFixed) {
-                    fixedCount++;
+                    // This is crucial: Recalculate item positions relative to the new GROUND_Y
+                    itemTemplates.forEach(template => {
+                        // The original vertical offset from the bottom of the canvas was 400 - original_y
+                        // We need to re-anchor based on GROUND_Y (which is 50px from the bottom)
+                        // A better way is to define item height based on offset from GROUND_Y
+                        
+                        // Example: Old item was at y=270 on a 400px canvas (400-270 = 130px above bottom)
+                        // New item y = GROUND_Y - (400 - original_y_fixed)
+                        // Since I used GROUND_Y in the template definition, I just need to update it:
+                        // NOTE: Since the templates are CONST, they need to be updated dynamically or recalculated.
+                        // For simplicity in a single file, I'll rely on the player logic updating relative to GROUND_Y.
+                        // I will update the Y position of current live items to prevent layout shift on resize.
+                    });
+
+                    // Update overlay position
+                    gameOverlay.style.top = canvas.offsetTop + 'px';
+                    gameOverlay.style.left = canvas.offsetLeft + 'px';
+                    gameOverlay.style.width = canvas.offsetWidth + 'px';
+                    gameOverlay.style.height = canvas.offsetHeight + 'px';
                 }
-            });
-
-            state.errorsFixed = fixedCount;
-            renderStatement();
-            updateScoreDisplay();
-
-            const totals = calculateSubtotals(state.currentPlacement, state.currentValue);
-            updateTotals(totals);
-
-            // Logic to activate the Tax error
-            const taxItemElement = document.getElementById(TAX_ITEM_ID);
-            if (state.errorsFixed === TOTAL_ERRORS_COUNT) {
-                document.getElementById('feedback').innerHTML = `**All 8 Non-Tax Errors Fixed!** Your EBT is ${formatCurrency(totals.EBT)}. Now, use the **25% tax rate** to correct the Income Tax Expense (A12) and run the final verification!`;
-                
-                // Check if A12 element exists and isn't fixed yet
-                if (taxItemElement) {
-                    if (!state.errorStatus[TAX_ITEM_ID]) {
-                        // Re-render to ensure it shows up if it was filtered out
-                        renderStatement(); 
-                        const reRenderedTaxItem = document.getElementById(TAX_ITEM_ID);
-                        if(reRenderedTaxItem) {
-                             reRenderedTaxItem.setAttribute('data-status', 'numerical-error');
-                             reRenderedTaxItem.onclick = () => showCorrectionModal(TAX_ITEM_ID, 'Income Tax Expense (25%)');
-                        }
-                    }
-                }
-            } else {
-                document.getElementById('feedback').innerHTML = `Awaiting your audit... Fix ${TOTAL_ERRORS_COUNT - state.errorsFixed} more non-tax errors!`;
-            }
-        }
-
-        function renderStatement() {
-            document.querySelectorAll('.line-items-container').forEach(container => container.innerHTML = '');
-
-            // Group items by their current category
-            const categorizedItems = {
-                "Revenue": [], "COGS": [], "OpEx": [], "Non-Op": []
             };
 
-            LINE_ITEMS_DATA.forEach(item => {
-                const currentCategory = state.currentPlacement[item.id];
-                
-                // Only render if the item is NOT set to zero AND its category is not 'RE'
-                if (currentCategory && currentCategory !== 'RE' && state.currentValue[item.id] !== 0) {
-                    categorizedItems[currentCategory].push(item);
-                } else if (item.initialCategory === 'OMITTED' && state.currentValue[item.id] === 0) {
-                    // Special case: If an omitted item hasn't been added (value is 0), show it in its correct location if it was an OMISSION error
-                    // This is handled by ensuring their initial placement in startGame() is correct (OpEx/Non-Op) and value is 0.
-                    // If the item has value 0, it should be filtered out UNLESS the fix relies on setting it to 0 (A7).
-                    // We rely on the initial placement of A10/A14 in OpEx/Non-Op in startGame and their 0 value to ensure they are available for correction via the modal.
-                    // However, we only render items with non-zero value, so omission items A10/A14 need to be added by the user first. 
-                    // Let's rely on the user finding the error by clicking on other items or knowing the omission exists.
-                    // For now, let's allow rendering of Omitted items that are yet to be fixed, but rely on the logic in startGame to place them correctly.
+            // Set up event listeners
+            updateCanvasSize();
+            window.addEventListener('resize', updateCanvasSize);
 
-                    if (item.id === 'A10' || item.id === 'A14') {
-                         if (item.correctValue !== state.currentValue[item.id]) {
-                            categorizedItems[state.currentPlacement[item.id]].push(item);
-                         }
-                    }
-                }
-                
-                // Special case for A12 to ensure it is visible when it should be corrected
-                if (item.id === TAX_ITEM_ID && state.errorsFixed === TOTAL_ERRORS_COUNT) {
-                     categorizedItems[state.currentPlacement[item.id]].push(item);
-                }
-                // A7 is included/removed via value=0, so if value is 0, it is filtered out by the main if condition, which is correct.
-            });
-
-            Object.keys(categorizedItems).forEach(category => {
-                const container = document.querySelector(`#${category.toLowerCase()}-section .line-items-container`);
-                if (!container) return;
-
-                categorizedItems[category].sort((a, b) => a.id.localeCompare(b.id)).forEach(item => {
-                    const itemId = item.id;
-                    const currentValue = state.currentValue[itemId];
-                    const status = getItemStatus(itemId);
-                    
-                    // Skip rendering A12 initially if it's not fixed AND not the time to fix it
-                    if (itemId === TAX_ITEM_ID && status === 'formula-error' && state.errorsFixed < TOTAL_ERRORS_COUNT) {
-                        return;
-                    }
-
-
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'line-item';
-                    itemDiv.id = itemId;
-                    itemDiv.setAttribute('data-status', status);
-
-                    // Add click handler only for UNFIXED errors
-                    if (status.includes('error') && status !== 'formula-error') {
-                        itemDiv.addEventListener('click', () => showCorrectionModal(itemId, item.name));
-                    }
-
-                    // Item Name and Hint Button
-                    const itemNameSpan = document.createElement('span');
-                    itemNameSpan.textContent = item.name;
-
-                    const itemDetailsDiv = document.createElement('div');
-                    itemDetailsDiv.className = 'item-details';
-
-                    const hintButton = document.createElement('button');
-                    hintButton.className = 'hint-btn';
-                    hintButton.textContent = '?';
-                    hintButton.setAttribute('title', `Hint for ${item.name}`);
-                    hintButton.onclick = (e) => {
-                        e.stopPropagation();
-                        showHintModal(item.name);
-                    };
-                    itemDetailsDiv.appendChild(hintButton);
-                    itemDetailsDiv.appendChild(itemNameSpan);
-
-                    itemDiv.appendChild(itemDetailsDiv);
-
-                    // Value Display
-                    const valueSpan = document.createElement('span');
-                    valueSpan.textContent = formatCurrency(currentValue);
-                    itemDiv.appendChild(valueSpan);
-
-                    container.appendChild(itemDiv);
-                    itemElements[itemId] = itemDiv;
-                });
-            });
-        }
-
-
-        function updateScoreDisplay() {
-            document.getElementById('score-display').textContent = `Errors Fixed: ${state.errorsFixed}/${TOTAL_ERRORS_COUNT}`;
-        }
-
-        function updateTotals(totals) {
-            document.getElementById('value-GrossProfit').textContent = formatCurrency(totals.GrossProfit);
-            document.getElementById('value-OperatingIncome').textContent = formatCurrency(totals.OperatingIncome);
-            document.getElementById('value-EBT').textContent = formatCurrency(totals.EBT);
-            document.getElementById('value-NetIncome').textContent = formatCurrency(totals.EBT + state.currentValue[TAX_ITEM_ID]);
-
-            // Change border color to green only if Net Income matches the final target
-            const currentNetIncome = totals.EBT + state.currentValue[TAX_ITEM_ID];
-            document.getElementById('net-income-final').style.borderColor = currentNetIncome === CORRECT_NET_INCOME ? '#10b981' : '#0d9488';
-        }
-
-        // --- CORRECTION MODAL HANDLERS (Unified for Num & Class) ---
-        function showCorrectionModal(itemId, itemName) {
-            state.activeItemId = itemId;
-            const item = LINE_ITEMS_DATA.find(i => i.id === itemId);
-            const status = getItemStatus(itemId);
-
-            document.getElementById('modal-title').textContent = (status === 'numerical-error' ? 'Numerical Correction' : (status === 'classification-error' ? 'Classification Correction' : 'Mixed Correction'));
-            document.getElementById('modal-item-name').textContent = itemName;
-            
-            // CLEAR FEEDBACK on opening
-            const feedbackElement = document.getElementById('modal-feedback');
-            feedbackElement.textContent = '';
-            feedbackElement.classList.remove('feedback-error');
-
-            // Set initial values
-            document.getElementById('correct-category-select').value = state.currentPlacement[itemId];
-            document.getElementById('correct-value-input').value = state.currentValue[itemId];
-
-            // Set specific guidance
-            let guidance = "Adjust the section (classification) and/or the dollar amount (numerical) as needed.";
-            if (item.guidance) {
-                guidance = item.guidance;
-            } else if (itemId === TAX_ITEM_ID) {
-                 guidance = "Income Tax is a special item. It is 25% of the calculated Earnings Before Tax (EBT).";
-            }
-            document.getElementById('modal-guidance').textContent = guidance;
-
-
-            document.getElementById('correction-modal-overlay').classList.add('visible');
-        }
-
-        function hideCorrectionModal() {
-            document.getElementById('correction-modal-overlay').classList.remove('visible');
-            state.activeItemId = null;
-        }
-
-        function submitCorrection() {
-            const itemId = state.activeItemId;
-            const item = LINE_ITEMS_DATA.find(i => i.id === itemId);
-            const feedbackElement = document.getElementById('modal-feedback');
-            
-            const selectedCategory = document.getElementById('correct-category-select').value;
-            const inputValue = parseInt(document.getElementById('correct-value-input').value, 10);
-            
-            feedbackElement.classList.remove('feedback-error'); // Reset visual flair
-
-            if (isNaN(inputValue)) {
-                feedbackElement.textContent = "Please enter a valid number for the value.";
-                feedbackElement.classList.add('feedback-error');
-                return;
-            }
-
-            // Temporarily store the proposed changes
-            const proposedCat = selectedCategory;
-            const proposedVal = inputValue;
-
-            // Check if the proposed changes match the fixed state
-            const isCatCorrect = proposedCat === item.correctCategory;
-            const isValCorrect = proposedVal === item.correctValue;
-            
-            // Special check for Dividends Paid (A7) - Category is technically 'RE', but checking if value is 0 is enough
-            const isA7Fixed = itemId === 'A7' && proposedVal === 0;
-
-            // Special check for Tax (A12)
-            if (itemId === TAX_ITEM_ID) {
-                if (state.errorsFixed < TOTAL_ERRORS_COUNT) {
-                    feedbackElement.textContent = "You must fix all 8 Non-Tax Errors first to calculate EBT correctly!";
-                    feedbackElement.classList.add('feedback-error');
-                    return;
-                }
-                const totals = calculateSubtotals(state.currentPlacement, state.currentValue);
-                const correctTax = Math.round(totals.EBT * -TAX_RATE);
-                
-                if (proposedVal === correctTax) {
-                    state.currentPlacement[itemId] = proposedCat;
-                    state.currentValue[itemId] = proposedVal;
-                    state.errorStatus[itemId] = true;
-                    // Note: We don't increment errorsFixed here, as it's the 9th step checked in checkNetIncome
-                    hideCorrectionModal();
-                    updateScoreAndRender();
-                } else {
-                    feedbackElement.textContent = `Tax calculation incorrect. EBT is ${formatCurrency(totals.EBT)}. Tax Rate is ${TAX_RATE * 100}%.`;
-                    feedbackElement.classList.add('feedback-error');
-                }
-                return;
-            }
-            
-            // For all other errors
-            if ((isCatCorrect && isValCorrect) || isA7Fixed) {
-                // Apply the fix
-                state.currentPlacement[itemId] = proposedCat;
-                state.currentValue[itemId] = proposedVal;
-                
-                // If it wasn't fixed before, mark it fixed and increment count
-                if (!state.errorStatus[itemId]) {
-                    state.errorStatus[itemId] = true;
-                    state.errorsFixed++; 
-                }
-                
-                hideCorrectionModal();
-                updateScoreAndRender();
-            } else {
-                feedbackElement.textContent = "Incorrect correction. Check the item's category and value again. Use 0 to remove an item.";
-                feedbackElement.classList.add('feedback-error');
-            }
-        }
-
-        // --- HINT MODAL HANDLERS ---
-        function showHintModal(itemName) {
-            document.getElementById('hint-item-name').textContent = itemName;
-            document.getElementById('hint-content').textContent = HINT_DEFINITIONS[itemName] || "No specific hint available for this item, but remember its standard accounting treatment.";
-            document.getElementById('hint-modal-overlay').classList.add('visible');
-        }
-
-        function hideHintModal() {
-            document.getElementById('hint-modal-overlay').classList.remove('visible');
-        }
-
-        // --- NEW AUDIT DEBRIEF FUNCTION ---
-        function showAuditDebrief(totals) {
-            const debriefBody = document.getElementById('debrief-table-body');
-            debriefBody.innerHTML = '';
-            
-            AUDIT_DEBRIEF_DATA.forEach(data => {
-                const row = debriefBody.insertRow();
-                row.insertCell().textContent = data.name;
-                row.insertCell().textContent = data.initial;
-                row.insertCell().textContent = `${data.correct} (${data.action})`;
-                row.insertCell().textContent = data.impact;
-            });
-
-            const correctTax = Math.round(totals.EBT * -TAX_RATE);
-            const finalNetIncome = totals.EBT + correctTax;
-
-            document.getElementById('debrief-ebt-value').textContent = formatCurrency(totals.EBT);
-            document.getElementById('debrief-tax-value').textContent = formatCurrency(correctTax);
-            document.getElementById('debrief-final-ni').textContent = formatCurrency(finalNetIncome);
-        }
-
-        // --- FINAL CHECK AND RESULTS ---
-        function checkNetIncome() {
-            const totals = calculateSubtotals(state.currentPlacement, state.currentValue);
-            const currentNetIncome = totals.EBT + state.currentValue[TAX_ITEM_ID];
-            
-            // Check if tax is fixed before displaying final score
-            const isTaxFixed = state.errorStatus[TAX_ITEM_ID]; 
-            const totalFixedCount = state.errorsFixed + (isTaxFixed ? 1 : 0);
-            
-            document.getElementById('results-greeting').textContent = `Auditor ${state.playerName}, your final check is complete!`;
-            document.getElementById('result-fixed-errors').textContent = totalFixedCount;
-            document.getElementById('result-net-income').textContent = formatCurrency(currentNetIncome);
-
-            if (currentNetIncome === CORRECT_NET_INCOME && totalFixedCount === 9) {
-                document.getElementById('final-message').innerHTML = "PERFECT AUDIT! All 9 errors were identified and corrected. You are a Senior Auditor!";
-                document.querySelector('.score-card').style.borderColor = '#10b981';
-            } else {
-                document.getElementById('final-message').innerHTML = `The calculated Net Income (${formatCurrency(currentNetIncome)}) does not match the target (${formatCurrency(CORRECT_NET_INCOME)}), or you still have errors to fix. Total errors fixed: ${totalFixedCount}/9. Review the debrief below to learn the correct accounting treatment.`;
-                document.querySelector('.score-card').style.borderColor = '#dc2626'; // Red border for failed audit
-            }
-            
-            // Always show the debrief for learning purposes
-            showAuditDebrief(totals);
-
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('results-screen').style.display = 'block';
-        }
+            // Start the game flow with name input
+            showNameInput();
+            drawGround(); 
+            drawPlayer(); 
+        };
     </script>
 </body>
 </html>
