@@ -3,1078 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Cash Flow Challenge Game (Classification & Calculation)</title>
+    <title>Preposition Quest: Mastery & Review</title>
     <style>
         :root {
-            --color-operating: #4CAF50; /* Green */
-            --color-investing: #FF9800; /* Orange */
-            --color-financing: #2196F3; /* Blue - Used for CFF button color and the blue frame for incorrect answers */
-            --color-primary: #19488a;
-            --color-success: #4CAF50;
-            --color-error: #dc3545; /* Red - Used for the correct answer frame */
-            --color-warning: #ffc107;
-            --color-hint: #6c757d; /* Gray for hint */
-            --color-review: #6f42c1; /* Purple for Review button */
-            --color-background: #f4f7f9;
-            --color-text: #333;
-            --color-card-bg: #fff;
+            --primary: #4a90e2; --beginner: #2ecc71; --amateur: #f1c40f;
+            --pro: #e67e22; --dark: #2c3e50; --light: #f4f7f6;
         }
-
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: var(--color-background);
-            color: var(--color-text);
-            text-align: center;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--dark); display: flex; justify-content: center;
+            align-items: center; min-height: 100vh; margin: 0;
         }
-
         .container {
-            max-width: 950px;
-            margin: 0 auto;
-            background: var(--color-card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            background: white; padding: 2.5rem; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); max-width: 750px;
+            width: 95%; text-align: center; max-height: 90vh; overflow-y: auto;
         }
-
-        h1 {
-            color: var(--color-primary);
-            margin-bottom: 20px;
+        .screen { display: none; }
+        .active { display: block; }
+        input[type="text"] {
+            padding: 12px; width: 80%; border: 2px solid #ddd;
+            border-radius: 8px; font-size: 1rem; margin-bottom: 20px;
         }
-
-        /* --- Global Component Styles --- */
-        .hidden { display: none !important; }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            margin: 5px;
+        .btn {
+            display: block; width: 100%; padding: 15px; margin: 10px 0;
+            border: none; border-radius: 10px; color: white;
+            font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s;
         }
-        button:hover:not(:disabled) { transform: translateY(-1px); }
-
-        .btn-primary { background-color: var(--color-primary); color: white; }
-        .btn-success { background-color: var(--color-success); color: white; }
-        .btn-retake { 
-            background-color: var(--color-warning); 
-            color: var(--color-text);
-        }
-        .btn-review { 
-            background-color: var(--color-review); 
-            color: white; 
-        }
-        .btn-hint { 
-            background-color: var(--color-hint); 
-            color: white; 
-            padding: 6px 10px; 
-            font-size: 0.8em;
-            margin-right: 10px;
-        }
-        .btn-calc-hint {
-            background-color: var(--color-error);
-            color: white;
-            padding: 6px 10px; 
-            font-size: 0.8em;
-            margin-right: 5px;
-        }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .bg-beginner { background: var(--beginner); }
+        .bg-amateur { background: var(--amateur); color: #333; }
+        .bg-pro { background: var(--pro); }
+        .bg-end { background: #636e72; }
+        .bg-main { background: var(--primary); }
+        .bg-review { background: #9b59b6; }
         
-        /* Start Screen & Rules */
-        #start-screen {
-            padding: 20px;
-            text-align: left;
+        .options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .prep-btn {
+            padding: 20px; border: 2px solid var(--primary);
+            background: white; border-radius: 10px; cursor: pointer; font-weight: bold;
         }
-        .rules-box {
-            background-color: #e6f0ff;
-            border: 1px solid var(--color-primary);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        #start-screen input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 50%;
-            margin-bottom: 20px;
-            text-align: center;
-            box-sizing: border-box;
-        }
-
-
-        /* --- Game Flow Structure --- */
-        .scoreboard {
-            display: flex;
-            justify-content: space-between;
-            background-color: #e6f0ff;
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            color: var(--color-primary);
-            font-weight: bold;
-        }
-
-        /* --- Classification Table Styles --- */
-        #transaction-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            text-align: left;
-        }
+        .prep-btn:hover { background: var(--primary); color: white; }
         
-        #transaction-table th, #transaction-table td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            vertical-align: top;
-        }
+        #feedback { height: 50px; margin-top: 20px; font-weight: bold; font-size: 1.1rem; }
+        .stats-box { background: #f1f2f6; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
         
-        #transaction-table thead th {
-            background-color: var(--color-primary);
-            color: white;
-            text-align: center;
-        }
-        
-        /* Transaction Column content */
-        .txn-content {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .hint-text {
-            font-style: italic;
-            color: var(--color-hint);
-            font-size: 0.85em;
-        }
-
-        /* CLASSIFICATION FEEDBACK TEXT */
-        .classification-feedback {
-            font-weight: bold;
-            margin-top: 5px;
-            font-size: 0.9em;
-            text-align: center;
-        }
-
-
-        .cat-buttons-group {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-            flex-wrap: wrap; /* Added for better responsiveness */
-        }
-        
-        .cat-btn {
-            padding: 6px 10px;
-            font-size: 0.8em;
-            flex-grow: 1;
-            margin: 0;
-            border: 1px solid transparent;
-            color: white; 
-        }
-        
-        .cat-btn[data-cat="CFO"] { background-color: var(--color-operating); }
-        .cat-btn[data-cat="CFI"] { background-color: var(--color-investing); }
-        .cat-btn[data-cat="CFF"] { background-color: var(--color-financing); }
-
-        /* Correct classification (Student chose correctly) - Use green border to signify their action was right */
-        .classified-correct { border: 3px solid var(--color-success) !important; opacity: 1 !important; }
-
-        /* Incorrect classification (Student chose wrongly) - Use BLUE frame */
-        .classified-incorrect { 
-            border: 3px solid var(--color-financing) !important; 
-            opacity: 1 !important; 
-        }
-        
-        /* The CORRECT answer button (when the student was wrong) - Use RED frame */
-        .correct-answer-highlight {
-            border: 3px solid var(--color-error) !important;
-            /* Keep the background color the original category color */
-        }
-        @keyframes flash {
-            0%, 40%, 80% { opacity: 1; }
-            20%, 60%, 100% { opacity: 0.5; }
-        }
-        .vivid-flash {
-            animation: flash 0.5s 4; /* Flash 4 times over 2 seconds */
-        }
-
-        /* --- Calculation Table Styles --- */
-        .cfs-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
-            text-align: left;
-        }
-        .cfs-table th, .cfs-table td { padding: 10px; border: none; }
-        .cfs-table th {
-            background-color: #e6f0ff;
-            color: var(--color-primary);
-            font-size: 1.1em;
-            text-align: left;
-        }
-        .calc-input-cell {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 5px;
-        }
-        .calc-warning {
-            color: var(--color-error);
-            font-size: 0.75em;
-            font-weight: bold;
-        }
-
-        input[type="number"] {
-            padding: 8px;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            width: 120px;
-            text-align: right;
-        }
-
-        .net-change, .ending-balance {
-            border-top: 3px double var(--color-primary);
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        /* --- Feedback Styles --- */
-        #solution-feedback {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: left;
-            font-size: 1.1em;
-        }
-        #review-breakdown {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--color-review);
-            background-color: #f7f3ff;
-            text-align: left;
-        }
-
-        .correct-bg { background-color: #e6ffe6; border: 1px solid var(--color-success); color: var(--color-success);}
-        .incorrect-bg { background-color: #ffe6e6; border: 1px solid var(--color-error); color: var(--color-error);}
-        .hint-bg { background-color: #fffbe6; border: 1px solid var(--color-warning); color: var(--color-text);}
-        
-        /* Table for Calculation Breakdown in Feedback */
-        .calc-breakdown {
-            width: 100%;
-            margin-top: 10px;
-            border-collapse: collapse;
-            font-size: 0.9em;
-        }
-        .calc-breakdown td {
-            padding: 3px 0;
-        }
-        .calc-breakdown td:last-child {
-            text-align: right;
-        }
-        .calc-breakdown th {
-            text-align: left;
-            padding-top: 5px;
-            border-bottom: 1px solid #ccc;
-        }
+        /* Review Table Styles */
+        .review-item { text-align: left; padding: 10px; border-bottom: 1px solid #eee; margin-top: 10px; }
+        .correct { color: #27ae60; font-weight: bold; }
+        .incorrect { color: #c0392b; font-weight: bold; }
+        .rule-tag { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px; color: #555; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>💰 Full Cash Flow Challenge Game 🕵️</h1>
+<div id="login-screen" class="container screen active">
+    <h1>🏆 Preposition Quest</h1>
+    <p>Mixed <strong>In, On, At</strong> challenge. Rules from Destination B1.</p>
+    <input type="text" id="player-name" placeholder="Enter Student Name...">
+    <button class="btn bg-main" onclick="startLevelSelection()">Login</button>
+</div>
 
-        <div id="start-screen">
-            <h2>Welcome, Cash Flow Detective!</h2>
-            <div class="rules-box">
-                <h3>Game Rules & Scoring</h3>
-                <ol style="text-align: left;">
-                    <li>You will complete **3 randomized cash flow problems**, drawn from a larger pool.</li>
-                    <li>Phase 1: Classification (1 Point/Transaction): Click the correct category (CFO/CFI/CFF) for every transaction. <strong>Instant, vivid feedback is provided on incorrect choices.</strong></li>
-                    <li>Phase 2: Calculation (1 Point/Segment): Calculate the NET Cash Flow for CFO, CFI, and CFF based on the classified transactions.</li>
-                    <li>Scoring: 1 point for each correct classification, plus 1 point for each correct segment total (CFO, CFI, CFF).</li>
-                    <li><strong>HINTS:</strong> Classification Hints are **FREE**. Calculation Hints: **-1 POINT PENALTY** for a general tip (not the final number), but you may still attempt the calculation.</li>
-                    <li>**Review Button:** After checking your score, you can click the Review button to see the detailed calculation breakdown.</li>
-                </ol>
-                <p style="font-weight: bold; margin-top: 15px;">Classification Feedback Key:</p>
-                <ul>
-                    <li style="color: var(--color-success);">A <strong>Green Frame</strong> means you classified the transaction <strong>Correctly</strong>.</li>
-                    <li style="color: var(--color-financing);">A <strong>Blue Frame</strong> means you classified the transaction <strong>Incorrectly</strong>.</li>
-                    <li style="color: var(--color-error);">A <strong>Red Frame</strong> (with flashing) highlights the <strong>Correct Category</strong> after an incorrect guess.</li>
-                </ul>
-            </div>
-            <label for="student-name" style="display: block; text-align: center; font-weight: bold; margin-bottom: 5px;">Enter Your Name:</label>
-            <input type="text" id="student-name" placeholder="Your Name" required>
-            <button class="btn-primary" onclick="startGame()">Start Game</button>
-        </div>
+<div id="level-screen" class="container screen">
+    <h2 id="welcome-msg"></h2>
+    <div class="stats-box">Cumulative Score: <span id="session-total">0</span></div>
+    <button class="btn bg-beginner" onclick="startGame('beginner')">Level 1: Beginner Mix</button>
+    <button class="btn bg-amateur" onclick="startGame('amateur')">Level 2: Amateur Mix</button>
+    <button class="btn bg-pro" onclick="startGame('pro')">Level 3: Pro Mix</button>
+    <hr>
+    <button class="btn bg-end" onclick="finishSession()">🔚 End Session & Calculate Score</button>
+</div>
 
-        <div id="game-screen" class="hidden">
-            <div class="scoreboard">
-                <span>Student: <span id="display-student-name"></span></span>
-                <span>Problem <span id="current-q-num">1</span> of 3</span>
-                <span>Score: <span id="score">0</span> Points</span>
-            </div>
-            
-            <h2>Problem Details</h2>
-            <p style="text-align: left;">Beginning Cash Balance: <strong style="color: var(--color-primary);">$<span id="beginning-cash"></span></strong></p>
-
-            <table class="problem-table" id="transaction-table">
-                <thead>
-                    <tr>
-                        <th style="width: 50%;">Transaction Description</th>
-                        <th style="width: 20%;">Amount</th>
-                        <th style="width: 30%;">Classify Activity (CFO/CFI/CFF)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
-
-            <button class="btn-primary hidden" id="btn-start-calc" onclick="startCalculationPhase()">Start Calculation Phase >></button>
-
-            <div id="calculation-section" class="hidden">
-                <h2 style="margin-top: 30px;">Your Calculation</h2>
-                <table class="cfs-table">
-                    <tr><th colspan="2">Net Cash Flow</th></tr>
-                    <tr>
-                        <td>NET Cash Flow from Operating Activities (CFO)
-                            <div class="calc-warning">Hint penalty: -1 Point</div>
-                        </td>
-                        <td class="calc-input-cell">
-                            <button class="btn-calc-hint" id="hint-cfo" onclick="showCalculationHint('CFO')">Hint</button>
-                            $<input type="number" id="input_cfo" placeholder="Enter CFO Total">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>NET Cash Flow from Investing Activities (CFI)
-                            <div class="calc-warning">Hint penalty: -1 Point</div>
-                        </td>
-                        <td class="calc-input-cell">
-                            <button class="btn-calc-hint" id="hint-cfi" onclick="showCalculationHint('CFI')">Hint</button>
-                            $<input type="number" id="input_cfi" placeholder="Enter CFI Total">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>NET Cash Flow from Financing Activities (CFF)
-                            <div class="calc-warning">Hint penalty: -1 Point</div>
-                        </td>
-                        <td class="calc-input-cell">
-                            <button class="btn-calc-hint" id="hint-cff" onclick="showCalculationHint('CFF')">Hint</button>
-                            $<input type="number" id="input_cff" placeholder="Enter CFF Total">
-                        </td>
-                    </tr>
-                    <tr class="net-change">
-                        <td>Net Increase (Decrease) in Cash</td>
-                        <td class="calc-input-cell">
-                            $<input type="number" id="input_net_change" placeholder="Calculated" disabled>
-                        </td>
-                    </tr>
-                    <tr class="ending-balance">
-                        <td>Ending Cash Balance</td>
-                        <td class="calc-input-cell">
-                            $<input type="number" id="input_ending_balance" placeholder="Calculated" disabled>
-                        </td>
-                    </tr>
-                </table>
-                
-                <button class="btn-primary" id="btn-calculate" onclick="calculateNetChange()">Calculate Net Change & Ending Balance</button>
-                <button class="btn-success" id="btn-check" onclick="checkAnswers()">Check Problem Score</button>
-                
-                <div style="margin-top: 15px;">
-                    <button class="btn-retake hidden" id="btn-retake" onclick="retakeProblem()">Retake Problem</button>
-                    <button class="btn-review hidden" id="btn-review" onclick="showReviewBreakdown()">Review Calculation Breakdown</button>
-                    <button class="btn-primary hidden" id="btn-next" onclick="nextProblem()">Next Problem >></button>
-                    <button class="btn-primary hidden" id="btn-finish" onclick="showResults()">Finish Game & See Overall Score</button>
-                </div>
-            </div>
-
-            <div id="solution-feedback" class="hidden"></div>
-            <div id="review-breakdown" class="hidden"></div>
-        </div>
-
-        <div id="results-screen" class="hidden">
-            <h2>Game Over, <span id="results-student-name"></span>!</h2>
-            <p style="font-size: 1.5em;">Your Final Score: <strong id="final-score">0</strong> / <span id="max-score">0</span> Points</p>
-            <p>You may start a new game to generate a new set of random problems.</p>
-            <button class="btn-primary" onclick="window.location.reload()">Start New Game</button>
-        </div>
+<div id="game-screen" class="container screen">
+    <h3 id="current-level-tag"></h3>
+    <div id="question-box" style="font-size: 1.4rem; margin: 20px 0;"></div>
+    <div class="options">
+        <button class="prep-btn" onclick="handleGuess('in')">IN</button>
+        <button class="prep-btn" onclick="handleGuess('on')">ON</button>
+        <button class="prep-btn" onclick="handleGuess('at')">AT</button>
     </div>
+    <div id="feedback"></div>
+</div>
 
-    <script>
-        // --- Core Data and Settings ---
-        const PROBLEM_COUNT = 3; 
-        const TRANSACTIONS_POOL = [
-            // OPERATING (CFO)
-            { desc: "Cash received from customers", cat: "CFO", sign: 1, min: 200000, max: 500000, hint: "This is a primary revenue-generating activity." },
-            { desc: "Paid wages and salaries", cat: "CFO", sign: -1, min: 50000, max: 150000, hint: "This is a cost of daily operations." },
-            { desc: "Paid suppliers for inventory", cat: "CFO", sign: -1, min: 80000, max: 200000, hint: "This relates directly to goods sold in the business." },
-            { desc: "Paid income taxes", cat: "CFO", sign: -1, min: 10000, max: 50000, hint: "Taxes are generally tied to operating profit." },
-            { desc: "Cash paid for utilities and rent", cat: "CFO", sign: -1, min: 15000, max: 40000, hint: "These are essential, everyday business expenses." },
-            // Extra CFO transaction for variety
-            { desc: "Received interest on a loan made to another company", cat: "CFO", sign: 1, min: 5000, max: 15000, hint: "Interest received is generally classified as operating unless the business is a financial institution." },
+<div id="round-result-screen" class="container screen">
+    <h2>Level Complete!</h2>
+    <p id="round-score-text" style="font-size: 1.5rem;"></p>
+    <button class="btn bg-main" onclick="showScreen('level-screen')">Back to Level Selection</button>
+</div>
 
-            // INVESTING (CFI)
-            { desc: "Purchased new machinery", cat: "CFI", sign: -1, min: 75000, max: 200000, hint: "This is buying a long-term asset (Property, Plant & Equipment)." },
-            { desc: "Received cash from selling land", cat: "CFI", sign: 1, min: 100000, max: 300000, hint: "This is selling a non-current asset." },
-            { desc: "Purchased long-term bonds of another company", cat: "CFI", sign: -1, min: 50000, max: 150000, hint: "This is acquiring an investment security." },
-            { desc: "Loaned money to another business", cat: "CFI", sign: -1, min: 30000, max: 90000, hint: "This is an extension of credit (investment) to an external party." },
-            // Extra CFI transaction for variety
-            { desc: "Cash used to purchase patent rights", cat: "CFI", sign: -1, min: 40000, max: 100000, hint: "This is the acquisition of an intangible asset." },
+<div id="final-screen" class="container screen">
+    <h1>Session Complete</h1>
+    <h2 id="final-player-name"></h2>
+    <div style="font-size: 4rem; color: var(--primary); margin: 10px 0;" id="final-total">0</div>
+    <p>Total Points Collected</p>
+    <button class="btn bg-review" onclick="showReview()">🔍 Detailed Question Review</button>
+    <button class="btn bg-main" onclick="location.reload()">Start New Session</button>
+</div>
 
-            // FINANCING (CFF)
-            { desc: "Issued new common stock for cash", cat: "CFF", sign: 1, min: 60000, max: 180000, hint: "This changes the company's equity (ownership structure)." },
-            { desc: "Repaid principal on long-term loan", cat: "CFF", sign: -1, min: 50000, max: 120000, hint: "This is paying down debt (liability structure)." },
-            { desc: "Paid dividends to shareholders", cat: "CFF", sign: -1, min: 10000, max: 40000, hint: "This is a return of capital to owners (equity activity)." },
-            { desc: "Borrowed cash by issuing bonds", cat: "CFF", sign: 1, min: 150000, max: 300000, hint: "This is taking on long-term debt (liability structure)." },
-            { desc: "Purchased treasury stock (buyback)", cat: "CFF", sign: -1, min: 20000, max: 80000, hint: "This reduces the amount of outstanding equity." }
-        ];
-        
-        // Define a larger pool of problems to draw from for randomization (15 problems).
-        const PROBLEM_POOL_SIZE = 15; 
-        
+<div id="review-screen" class="container screen">
+    <h2>Question Review</h2>
+    <p>Review your answers and the Destination B1 rules below.</p>
+    <div id="review-list"></div>
+    <button class="btn bg-main" onclick="showScreen('final-screen')" style="margin-top:20px;">Back to Final Score</button>
+</div>
 
-        // --- Game State Variables ---
-        let studentName = "";
-        let currentProblemIndex = 0;
-        let totalScore = 0;
-        let quizProblems = []; // This will hold the 3 selected problems for the current game
-        let currentProblem = null; 
-        let maxPossibleScore = 0;
+<script>
+    let playerName = "", sessionScore = 0, currentQuestions = [], questionIndex = 0, roundScore = 0;
+    let allSessionLog = []; // Stores every question and answer for final review
 
-        // --- DOM Elements ---
-        const startScreen = document.getElementById('start-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const resultsScreen = document.getElementById('results-screen');
-        
-        const inputCFO = document.getElementById('input_cfo');
-        const inputCFI = document.getElementById('input_cfi');
-        const inputCFF = document.getElementById('input_cff');
-        const inputNetChange = document.getElementById('input_net_change');
-        const inputEndingBalance = document.getElementById('input_ending_balance');
-        const transactionTableBody = document.querySelector('#transaction-table tbody');
-        const solutionFeedbackDiv = document.getElementById('solution-feedback');
-        const reviewBreakdownDiv = document.getElementById('review-breakdown');
-        const btnStartCalc = document.getElementById('btn-start-calc');
-        const btnCheck = document.getElementById('btn-check');
-        const btnCalculate = document.getElementById('btn-calculate');
-        const btnNext = document.getElementById('btn-next');
-        const btnRetake = document.getElementById('btn-retake');
-        const btnReview = document.getElementById('btn-review');
-        const btnFinish = document.getElementById('btn-finish'); 
-        const calculationSection = document.getElementById('calculation-section');
-        const maxScoreDisplay = document.getElementById('max-score');
+    const database = {
+        beginner: [
+            { q: "Paris is wonderful ____ April.", a: "in", h: "Months" },
+            { q: "The movie starts ____ 7:00.", a: "at", h: "Clock times" },
+            { q: "I'll be home ____ Sunday.", a: "on", h: "Days" },
+            { q: "I first went to Russia ____ 2005.", a: "in", h: "Years" },
+            { q: "The apple was ____ the table.", a: "on", h: "Surfaces" },
+            { q: "Let's meet ____ the park.", a: "in", h: "Enclosed areas" },
+            { q: "Tim was waiting ____ the car.", a: "in", h: "Enclosed space" },
+            { q: "Meet me ____ the entrance.", a: "at", h: "Specific point" },
+            { q: "Head to the theater ____ Second Street.", a: "on", h: "Street names" },
+            { q: "Your passport is ____ the drawer.", a: "in", h: "Inside an object" },
+            { q: "I'll see you ____ the morning.", a: "in", h: "Parts of day" },
+            { q: "We often go skiing ____ winter.", a: "in", h: "Seasons" },
+            { q: "My office is ____ Main Street.", a: "on", h: "Road/Street locations" },
+            { q: "The birds sing ____ sunrise.", a: "at", h: "Specific time point" },
+            { q: "Sharon is ____ the travel agent's.", a: "in", h: "Inside a building" }
+        ],
+        amateur: [
+            { q: "My birthday is ____ 19th March.", a: "on", h: "Dates" },
+            { q: "We're flying ____ Tuesday morning.", a: "on", h: "Specific day + part of day" },
+            { q: "Last year, we stayed ____ Mykonos.", a: "on", h: "Islands" },
+            { q: "What's life like ____ the desert?", a: "in", h: "Large areas/regions" },
+            { q: "I'll meet you ____ the bus stop.", a: "at", h: "Point on a journey" },
+            { q: "There are Italian phrases ____ page 97.", a: "on", h: "Pages" },
+            { q: "I have a lot of fun ____ my birthday.", a: "on", h: "Specific holidays" },
+            { q: "I am ____ the middle of my work.", a: "in", h: "Phrase: in the middle of" },
+            { q: "Turn ____ the left at the light.", a: "on", h: "Direction phrases" },
+            { q: "Meet me ____ the first floor.", a: "on", h: "Floor levels" },
+            { q: "What are you doing ____ Christmas?", a: "at", h: "Holiday periods" },
+            { q: "I am very busy ____ the moment.", a: "at", h: "Phrase: at the moment" },
+            { q: "I've left the tickets ____ the living room.", a: "in", h: "Rooms" },
+            { q: "I can't see well ____ night.", a: "at", h: "Phrase: at night" },
+            { q: "The tickets are ____ the counter.", a: "on", h: "Surfaces" }
+        ],
+        pro: [
+            { q: "My cousin lives ____ 132 London Road.", a: "at", h: "Specific address" },
+            { q: "John is ____ the cinema.", a: "at", h: "Buildings (activity inside)" },
+            { q: "Rania isn't here. She's ____ a party.", a: "at", h: "Activities" },
+            { q: "I should be home ____ a week or two.", a: "in", h: "Unspecific time span" },
+            { q: "Look ____ the bottom of the page.", a: "at", h: "Relative positions" },
+            { q: "Who is standing ____ the door?", a: "at", h: "Precise point" },
+            { q: "We're spending our holiday ____ the countryside.", a: "in", h: "Large areas around us" },
+            { q: "There's a bus ____ ten past three.", a: "at", h: "Clock times" },
+            { q: "What's it like ____ the North Pole?", a: "at", h: "Exact places" },
+            { q: "Snow falls ____ Christmas time.", a: "at", h: "Holiday periods" },
+            { q: "Put the stamp ____ the top-right corner.", a: "in", h: "Inside a corner area" },
+            { q: "Wait ____ the entrance until I arrive.", a: "at", h: "Specific point" },
+            { q: "Is there anything good ____ television tonight?", a: "on", h: "Media/Screens" },
+            { q: "I'll be ready ____ an hour.", a: "in", h: "Time phrase" },
+            { q: "The kids are playing ____ the beach.", a: "on", h: "Phrase: on the beach" }
+        ]
+    };
 
-        // --- Utility Functions ---
-        function formatCurrency(amount) {
-            // Use toLocaleString without fixed decimals to handle the random generation of amounts
-            // Note: The random generator ensures amounts are rounded to the nearest 1000, so decimals are unlikely here, but this is safer.
-            const absAmount = Math.abs(amount);
-            const formatted = absAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-            return amount < 0 ? `(\$${formatted})` : `\$${formatted}`;
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'level-screen') document.getElementById('session-total').innerText = sessionScore;
+    }
+
+    function startLevelSelection() {
+        playerName = document.getElementById('player-name').value || "Student";
+        document.getElementById('welcome-msg').innerText = `Greetings, ${playerName}!`;
+        showScreen('level-screen');
+    }
+
+    function startGame(level) {
+        currentQuestions = [...database[level]].sort(() => Math.random() - 0.5);
+        questionIndex = 0; roundScore = 0;
+        document.getElementById('current-level-tag').innerText = `Challenge Mix: ${level.toUpperCase()}`;
+        showScreen('game-screen');
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (questionIndex < currentQuestions.length) {
+            const q = currentQuestions[questionIndex];
+            document.getElementById('question-box').innerHTML = q.q.replace("____", "<span style='color:#4a90e2; border-bottom: 2px solid'>____</span>");
+            document.getElementById('feedback').innerText = "";
+        } else {
+            sessionScore += roundScore;
+            document.getElementById('round-score-text').innerText = `Round Score: ${roundScore} / ${currentQuestions.length}`;
+            showScreen('round-result-screen');
         }
-        
-        function formatSign(amount) {
-            return amount >= 0 ? "Cash Inflow" : "Cash Outflow";
-        }
+    }
 
-        function getRandomInt(min, max) {
-            const value = Math.floor(Math.random() * (max - min + 1)) + min;
-            return Math.round(value / 1000) * 1000;
-        }
+    function handleGuess(choice) {
+        const q = currentQuestions[questionIndex];
+        const feedback = document.getElementById('feedback');
+        let isCorrect = (choice === q.a);
 
-        // NEW UTILITY FUNCTION: For comparing floating point numbers (user input vs correct answer)
-        function isWithinTolerance(userValue, correctValue, tolerance = 0.01) {
-            return Math.abs(userValue - correctValue) <= tolerance;
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        // --- Game Setup Functions ---
-        function generateRandomProblem() {
-            let transactions = [];
-            let pool = JSON.parse(JSON.stringify(TRANSACTIONS_POOL));
-            let categoriesUsed = { CFO: 0, CFI: 0, CFF: 0 };
-            
-            const minTransactions = 9;
-            const maxTransactions = 12;
-            const totalTransactions = getRandomInt(minTransactions, maxTransactions);
-            let transactionIdCounter = 0;
-            
-            // Phase 1: Ensure minimum coverage (3 per category)
-            let tempPool = JSON.parse(JSON.stringify(TRANSACTIONS_POOL));
-            while (transactions.length < 9) {
-                const availableTxns = tempPool.filter(txn => categoriesUsed[txn.cat] < 3);
-                if (availableTxns.length === 0) break;
-
-                const index = getRandomInt(0, availableTxns.length - 1);
-                const txn = availableTxns[index];
-                const amount = getRandomInt(txn.min, txn.max);
-                
-                transactions.push({
-                    id: transactionIdCounter++, 
-                    desc: txn.desc,
-                    cat: txn.cat,
-                    amount: txn.sign * amount,
-                    classified: null,
-                    isCorrect: false,
-                    hint: txn.hint 
-                });
-                categoriesUsed[txn.cat]++;
-                tempPool = tempPool.filter(p => p.desc !== txn.desc);
-            }
-            
-            // Phase 2: Fill remaining slots randomly
-            let usedDescriptions = new Set(transactions.map(t => t.desc));
-            pool = JSON.parse(JSON.stringify(TRANSACTIONS_POOL)); 
-            while (transactions.length < totalTransactions) {
-                const index = getRandomInt(0, pool.length - 1);
-                const txn = pool[index];
-                const amount = getRandomInt(txn.min, txn.max);
-                
-                if (!usedDescriptions.has(txn.desc)) {
-                    transactions.push({
-                        id: transactionIdCounter++, 
-                        desc: txn.desc,
-                        cat: txn.cat,
-                        amount: txn.sign * amount,
-                        classified: null,
-                        isCorrect: false,
-                        hint: txn.hint
-                    });
-                    usedDescriptions.add(txn.desc);
-                } else {
-                    pool.splice(index, 1);
-                    if (pool.length === 0) break;
-                }
-            }
-
-
-            // Calculate correct totals
-            const transactionsCFO = transactions.filter(t => t.cat === 'CFO');
-            const transactionsCFI = transactions.filter(t => t.cat === 'CFI');
-            const transactionsCFF = transactions.filter(t => t.cat === 'CFF');
-
-            const correctCFO = transactionsCFO.reduce((sum, t) => sum + t.amount, 0);
-            const correctCFI = transactionsCFI.reduce((sum, t) => sum + t.amount, 0);
-            const correctCFF = transactionsCFF.reduce((sum, t) => sum + t.amount, 0);
-            
-            const beginningCash = getRandomInt(40000, 150000);
-            const netChange = correctCFO + correctCFI + correctCFF;
-            const endingCash = netChange + beginningCash;
-            
-            // Shuffle transactions for presentation
-            shuffleArray(transactions); 
-            
-            return {
-                transactions: transactions,
-                beginningCash: beginningCash,
-                CFO: correctCFO,
-                CFI: correctCFI,
-                CFF: correctCFF,
-                netChange: netChange,
-                endingCash: endingCash,
-                transactionsCFO: transactionsCFO, 
-                transactionsCFI: transactionsCFI,
-                transactionsCFF: transactionsCFF,
-                classificationScore: 0,
-                calculationScore: 0,
-                totalPenalty: 0,
-                hintsUsed: { CFO: false, CFI: false, CFF: false } // Track calculation hints
-            };
-        }
-
-        function startGame() {
-            studentName = document.getElementById('student-name').value.trim();
-            if (studentName === "") {
-                alert("Please enter your name to start the game.");
-                return;
-            }
-
-            currentProblemIndex = 0;
-            totalScore = 0;
-            quizProblems = [];
-            maxPossibleScore = 0;
-            
-            // 1. Generate a large pool of unique problems first
-            let problemPool = [];
-            for (let i = 0; i < PROBLEM_POOL_SIZE; i++) {
-                problemPool.push(generateRandomProblem());
-            }
-
-            // 2. Select a random subset (PROBLEM_COUNT) of problems for the current game
-            shuffleArray(problemPool);
-            quizProblems = problemPool.slice(0, PROBLEM_COUNT);
-
-            // 3. Calculate max possible score based on the selected problems
-            quizProblems.forEach(problem => {
-                maxPossibleScore += problem.transactions.length + 3;
-            });
-
-            maxScoreDisplay.textContent = maxPossibleScore;
-            document.getElementById('display-student-name').textContent = studentName;
-            
-            // Update the display for the problem count based on PROBLEM_COUNT
-            document.querySelector('.scoreboard span:nth-child(2)').innerHTML = `Problem <span id="current-q-num">1</span> of ${PROBLEM_COUNT}`;
-
-            showScreen('game-screen');
-            loadProblem();
-        }
-
-        function showScreen(id) {
-            startScreen.classList.add('hidden');
-            gameScreen.classList.add('hidden');
-            resultsScreen.classList.add('hidden');
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-
-        // --- Problem Loading ---
-        function loadProblem() {
-            // Check if we are past the last problem index
-            if (currentProblemIndex >= PROBLEM_COUNT) {
-                return;
-            }
-
-            currentProblem = quizProblems[currentProblemIndex];
-            
-            // Reset UI for Classification Phase
-            calculationSection.classList.add('hidden');
-            btnStartCalc.classList.add('hidden');
-            btnStartCalc.disabled = true;
-            btnNext.classList.add('hidden');
-            btnFinish.classList.add('hidden'); // Hide Finish button until the last problem is done
-            btnRetake.classList.add('hidden');
-            btnReview.classList.add('hidden');
-
-            inputCFO.value = inputCFI.value = inputCFF.value = '';
-            inputNetChange.value = inputEndingBalance.value = '';
-            solutionFeedbackDiv.classList.add('hidden');
-            solutionFeedbackDiv.className = ''; 
-            reviewBreakdownDiv.classList.add('hidden');
-            
-            // ENSURE INPUTS ARE ENABLED
-            inputCFO.disabled = false;
-            inputCFI.disabled = false;
-            inputCFF.disabled = false;
-            
-            // Re-enable calculation hint buttons
-            document.getElementById('hint-cfo').disabled = currentProblem.hintsUsed.CFO;
-            document.getElementById('hint-cfi').disabled = currentProblem.hintsUsed.CFI;
-            document.getElementById('hint-cff').disabled = currentProblem.hintsUsed.CFF;
-
-            // Update scoreboard 
-            document.getElementById('current-q-num').textContent = currentProblemIndex + 1;
-            document.getElementById('score').textContent = totalScore;
-            document.getElementById('beginning-cash').textContent = currentProblem.beginningCash.toLocaleString();
-
-            // Populate transaction table (Classification Phase)
-            transactionTableBody.innerHTML = '';
-            currentProblem.transactions.forEach((txn) => { 
-                const tr = document.createElement('tr');
-                const signColor = txn.amount >= 0 ? 'var(--color-success)' : 'var(--color-error)';
-                
-                tr.innerHTML = `
-                    <td>
-                        <div class="txn-content">
-                            <span>${txn.desc}</span>
-                            <button class="btn-hint" id="hint-${txn.id}" onclick="showHint(${txn.id})">Hint</button>
-                            <span class="hint-text hidden" id="hint-text-${txn.id}"></span>
-                        </div>
-                    </td>
-                    <td style="color: ${signColor}; font-weight: bold;">${formatCurrency(txn.amount)}</td>
-                    <td>
-                        <div class="cat-buttons-group-wrapper" id="wrapper-${txn.id}">
-                            <div class="cat-buttons-group" data-txn-id="${txn.id}">
-                                <button class="cat-btn" data-cat="CFO" onclick="classifyActivity(${txn.id}, 'CFO')">CFO</button>
-                                <button class="cat-btn" data-cat="CFI" onclick="classifyActivity(${txn.id}, 'CFI')">CFI</button>
-                                <button class="cat-btn" data-cat="CFF" onclick="classifyActivity(${txn.id}, 'CFF')">CFF</button>
-                            </div>
-                            <div class="classification-feedback hidden" id="feedback-${txn.id}"></div>
-                        </div>
-                    </td>
-                `;
-                transactionTableBody.appendChild(tr);
-                
-                // If retaking and already classified, re-apply styles
-                if (txn.classified) {
-                    const btnGroup = tr.querySelector('.cat-buttons-group');
-                    const selectedBtn = btnGroup.querySelector(`[data-cat="${txn.classified}"]`);
-                    btnGroup.querySelectorAll('.cat-btn').forEach(btn => btn.disabled = true);
-                    
-                    const feedbackDiv = document.getElementById(`feedback-${txn.id}`);
-                    feedbackDiv.classList.remove('hidden');
-
-                    if (txn.isCorrect) {
-                        selectedBtn.classList.add('classified-correct');
-                        feedbackDiv.textContent = "✅ Correct!";
-                        feedbackDiv.style.color = "var(--color-success)";
-                    } else {
-                        selectedBtn.classList.add('classified-incorrect');
-                        const correctBtn = btnGroup.querySelector(`[data-cat="${txn.cat}"]`);
-                        correctBtn.classList.add('correct-answer-highlight');
-                        feedbackDiv.textContent = `❌ Incorrect, it's ${txn.cat}.`;
-                        feedbackDiv.style.color = "var(--color-error)";
-                    }
-                    
-                    // Hide hints again if classified
-                    tr.querySelector('.btn-hint').classList.add('hidden');
-                }
-            });
-
-            // If all were classified before, show the calc button
-            const allClassified = currentProblem.transactions.every(t => t.classified !== null);
-            if (allClassified) {
-                btnStartCalc.classList.remove('hidden');
-                btnStartCalc.disabled = false;
-            }
-        }
-        
-        function showHint(txnId) {
-            const txn = currentProblem.transactions.find(t => t.id === txnId);
-            if (!txn) return;
-            
-            document.getElementById(`hint-text-${txnId}`).textContent = `[Hint] ${txn.hint}`;
-            document.getElementById(`hint-text-${txnId}`).classList.remove('hidden');
-            document.getElementById(`hint-${txnId}`).classList.add('hidden'); // Hide hint button after use
-        }
-
-        // --- Classification Phase Logic ---
-        function classifyActivity(txnId, category) {
-            const txn = currentProblem.transactions.find(t => t.id === txnId);
-            
-            if (!txn || txn.classified) return; 
-
-            txn.classified = category;
-            txn.isCorrect = (category === txn.cat);
-
-            // Hide the hint button and text
-            document.getElementById(`hint-${txn.id}`).classList.add('hidden'); 
-            document.getElementById(`hint-text-${txn.id}`).classList.add('hidden');
-
-            // Find the button group and feedback div
-            const btnGroup = document.querySelector(`[data-txn-id="${txnId}"]`);
-            const selectedBtn = btnGroup.querySelector(`[data-cat="${category}"]`);
-            const feedbackDiv = document.getElementById(`feedback-${txnId}`);
-            feedbackDiv.classList.remove('hidden');
-            
-            // 1. Lock all buttons for this transaction
-            btnGroup.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.disabled = true; 
-            });
-            
-            // 2. Apply feedback styles
-            if (txn.isCorrect) {
-                // Correct: Highlight selected button with green border
-                selectedBtn.classList.add('classified-correct');
-                feedbackDiv.textContent = "✅ Correct!";
-                feedbackDiv.style.color = "var(--color-success)";
-            } else {
-                // Incorrect: Highlight selected button with BLUE frame (wrong), 
-                // AND highlight correct button with RED frame (right) and flash
-                selectedBtn.classList.add('classified-incorrect');
-                const correctBtn = btnGroup.querySelector(`[data-cat="${txn.cat}"]`);
-                correctBtn.classList.add('correct-answer-highlight', 'vivid-flash');
-                
-                feedbackDiv.textContent = `❌ Incorrect, it's ${txn.cat}.`;
-                feedbackDiv.style.color = "var(--color-error)";
-
-                // Remove flash class after animation (2 seconds = 0.5s * 4)
-                setTimeout(() => {
-                    correctBtn.classList.remove('vivid-flash');
-                }, 2000);
-            }
-            
-            // 3. Check if all transactions are classified
-            const allClassified = currentProblem.transactions.every(t => t.classified !== null);
-            if (allClassified) {
-                btnStartCalc.classList.remove('hidden');
-                btnStartCalc.disabled = false;
-            }
-        }
-
-        function startCalculationPhase() {
-            // Remove previous score for this problem before adding the new one
-            totalScore -= currentProblem.classificationScore; 
-
-            // Score the classification round
-            const correctCount = currentProblem.transactions.filter(t => t.isCorrect).length;
-            currentProblem.classificationScore = correctCount;
-            totalScore += correctCount;
-            document.getElementById('score').textContent = totalScore;
-            
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.disabled = true);
-            document.querySelectorAll('.btn-hint').forEach(btn => btn.classList.add('hidden')); 
-            btnStartCalc.classList.add('hidden');
-
-            // Show calculation section
-            calculationSection.classList.remove('hidden');
-            btnCheck.classList.remove('hidden');
-            btnCalculate.classList.remove('hidden');
-            btnNext.classList.add('hidden');
-            btnFinish.classList.add('hidden');
-            btnRetake.classList.add('hidden'); 
-            btnReview.classList.add('hidden');
-            reviewBreakdownDiv.classList.add('hidden');
-            
-            // Display classification results in feedback
-            solutionFeedbackDiv.classList.remove('hidden');
-            solutionFeedbackDiv.className = 'hint-bg';
-            solutionFeedbackDiv.innerHTML = `
-                <h3 style="margin: 0; color: var(--color-primary);">Classification Complete!</h3>
-                <p>You scored <strong>${currentProblem.classificationScore} / ${currentProblem.transactions.length}</strong> points in the Classification Phase. Now, proceed to calculate the Net Cash Flows.</p>
-            `;
-        }
-
-
-        // --- Calculation Hint Logic ---
-        function showCalculationHint(segment) {
-            const hintButton = document.getElementById(`hint-${segment.toLowerCase()}`);
-            const inputField = document.getElementById(`input_${segment.toLowerCase()}`);
-            
-            if (currentProblem.hintsUsed[segment] === true) {
-                // If a hint has been used, the penalty has ALREADY been applied to totalScore
-            } else {
-                // 1. Deduct points and update state (only on first use)
-                totalScore = Math.max(0, totalScore - 1); 
-                currentProblem.totalPenalty += 1; // Track penalty on the problem object
-                document.getElementById('score').textContent = totalScore;
-                currentProblem.hintsUsed[segment] = true;
-            }
-            
-            hintButton.disabled = true;
-            inputField.disabled = false; // Ensure input is enabled
-
-            
-            let transactions, correctTotal;
-            let segmentName = "";
-
-            if (segment === 'CFO') {
-                transactions = currentProblem.transactionsCFO;
-                correctTotal = currentProblem.CFO;
-                segmentName = "Operating Activities (CFO)";
-            } else if (segment === 'CFI') {
-                transactions = currentProblem.transactionsCFI;
-                correctTotal = currentProblem.CFI;
-                segmentName = "Investing Activities (CFI)";
-            } else if (segment === 'CFF') {
-                transactions = currentProblem.transactionsCFF;
-                correctTotal = currentProblem.CFF;
-                segmentName = "Financing Activities (CFF)";
-            } else {
-                return;
-            }
-
-            // 2. Generate Hint Message (NO NUMERICAL TOTAL)
-            const hintMessage = `
-                <p>${currentProblem.hintsUsed[segment] ? '' : '<strong>-1 POINT DEDUCTED.</strong>'} Current Score: ${totalScore}</p>
-                <p>The correct calculation for ${segmentName} involves ${transactions.length} transactions, and the resulting Net Cash Flow is a ${formatSign(correctTotal)}.</p>
-                <p>You may still attempt the calculation above.</p>
-            `;
-            
-            solutionFeedbackDiv.classList.remove('hidden', 'correct-bg', 'incorrect-bg');
-            solutionFeedbackDiv.classList.add('hint-bg'); 
-            solutionFeedbackDiv.innerHTML = `
-                <h3 style="margin-top: 0;">🚨 CALCULATION HINT USED 🚨</h3>
-                ${hintMessage}
-            `;
-        }
-        
-        // --- Calculation Phase Logic ---
-        function calculateNetChange() {
-            // BUG FIX: Removed .toFixed(0) here to retain any user input decimals for display, 
-            // but the underlying comparison in checkAnswers uses a tolerance check.
-            const userCFO = parseFloat(inputCFO.value) || 0;
-            const userCFI = parseFloat(inputCFI.value) || 0;
-            const userCFF = parseFloat(inputCFF.value) || 0;
-
-            const calculatedNetChange = userCFO + userCFI + userCFF;
-            const calculatedEndingBalance = calculatedNetChange + currentProblem.beginningCash;
-
-            // Display values with 2 decimal places to handle cents if entered by user, or .00 otherwise.
-            inputNetChange.value = calculatedNetChange.toFixed(2);
-            inputEndingBalance.value = calculatedEndingBalance.toFixed(2);
-            
-            // Show status update if not showing a specific hint or review message
-            if (!solutionFeedbackDiv.innerHTML.includes("CALCULATION HINT USED")) {
-                solutionFeedbackDiv.classList.remove('hidden', 'correct-bg', 'incorrect-bg');
-                solutionFeedbackDiv.classList.add('hint-bg');
-                solutionFeedbackDiv.innerHTML = "Net Change and Ending Balance updated based on your inputs. Now, Check Problem Score to finalize your score!";
-            }
-        }
-        
-        function generateBreakdown(transactions, total, segmentName) {
-            let html = `<h4>${segmentName} Breakdown:</h4><table class="calc-breakdown">`;
-            
-            transactions.forEach(t => {
-                html += `<tr><td>${t.desc}</td><td>${formatCurrency(t.amount)}</td></tr>`;
-            });
-            html += `<tr><td><strong>Total Segment Net Flow</strong></td><td><strong>${formatCurrency(total)}</strong></td></tr>`;
-            html += '</table>';
-            return html;
-        }
-
-        // --- Review Button Logic ---
-        function showReviewBreakdown() {
-            reviewBreakdownDiv.classList.toggle('hidden');
-            if (!reviewBreakdownDiv.classList.contains('hidden')) {
-                let html = '<h2>Full Calculation Breakdown</h2>';
-                
-                html += generateBreakdown(currentProblem.transactionsCFO, currentProblem.CFO, "Operating Activities (CFO)");
-                html += generateBreakdown(currentProblem.transactionsCFI, currentProblem.CFI, "Investing Activities (CFI)");
-                html += generateBreakdown(currentProblem.transactionsCFF, currentProblem.CFF, "Financing Activities (CFF)");
-                
-                reviewBreakdownDiv.innerHTML = html;
-            } else {
-                reviewBreakdownDiv.innerHTML = '';
-            }
-        }
-
-
-        function checkAnswers() {
-            // BUG FIX: Parse inputs to floats for robust comparison.
-            const userCFO = parseFloat(inputCFO.value) || 0;
-            const userCFI = parseFloat(inputCFI.value) || 0;
-            const userCFF = parseFloat(inputCFF.value) || 0;
-            
-            // Remove previous calculation score before adding the new one
-            totalScore -= currentProblem.calculationScore; 
-
-            // Disable calculation inputs and hint buttons after checking
-            inputCFO.disabled = inputCFI.disabled = inputCFF.disabled = true;
-            document.getElementById('hint-cfo').disabled = true;
-            document.getElementById('hint-cfi').disabled = true;
-            document.getElementById('hint-cff').disabled = true;
-
-            btnCalculate.classList.add('hidden');
-            btnCheck.classList.add('hidden');
-            btnRetake.classList.remove('hidden'); 
-            btnReview.classList.remove('hidden'); // Show Review button
-
-            // Determine if we show Next or Finish
-            if (currentProblemIndex === PROBLEM_COUNT - 1) {
-                btnNext.classList.add('hidden');
-                btnFinish.classList.remove('hidden');
-            } else {
-                btnNext.classList.remove('hidden');
-                btnFinish.classList.add('hidden');
-            }
-
-            let calculationScore = 0;
-            const feedbackItems = [];
-
-            // Check segments using the new tolerance function
-            // FIX: Replaced strict equality (===) with isWithinTolerance()
-            const isCfoCorrect = isWithinTolerance(userCFO, currentProblem.CFO);
-            if (isCfoCorrect) {
-                calculationScore += 1;
-                feedbackItems.push(`<li>CFO Total: ✅ Correct (+1 Pt) - ${formatCurrency(currentProblem.CFO)}</li>`);
-            } else {
-                feedbackItems.push(`<li>CFO Total: ❌ Incorrect (0 Pts) - Your: ${formatCurrency(userCFO)} | Correct: ${formatCurrency(currentProblem.CFO)}</li>`);
-            }
-
-            const isCfiCorrect = isWithinTolerance(userCFI, currentProblem.CFI);
-            if (isCfiCorrect) {
-                calculationScore += 1;
-                feedbackItems.push(`<li>CFI Total: ✅ Correct (+1 Pt) - ${formatCurrency(currentProblem.CFI)}</li>`);
-            } else {
-                feedbackItems.push(`<li>CFI Total: ❌ Incorrect (0 Pts) - Your: ${formatCurrency(userCFI)} | Correct: ${formatCurrency(currentProblem.CFI)}</li>`);
-            }
-
-            const isCffCorrect = isWithinTolerance(userCFF, currentProblem.CFF);
-            if (isCffCorrect) {
-                calculationScore += 1;
-                feedbackItems.push(`<li>CFF Total: ✅ Correct (+1 Pt) - ${formatCurrency(currentProblem.CFF)}</li>`);
-            } else {
-                feedbackItems.push(`<li>CFF Total: ❌ Incorrect (0 Pts) - Your: ${formatCurrency(userCFF)} | Correct: ${formatCurrency(currentProblem.CFF)}</li>`);
-            }
-
-            currentProblem.calculationScore = calculationScore;
-            
-            // Final totals feedback
-            const maxProblemScore = currentProblem.transactions.length + 3;
-            const currentProblemScore = currentProblem.classificationScore + calculationScore;
-            const totalPenalty = currentProblem.totalPenalty;
-
-
-            const finalFeedback = `
-                <h3 style="margin-top: 0;">Problem ${currentProblemIndex + 1} Final Results:</h3>
-                
-                <p><strong>Phase 1: Classification Score:</strong> ${currentProblem.classificationScore} / ${currentProblem.transactions.length} Points</p>
-                <p><strong>Phase 2: Calculation Score:</strong> ${calculationScore} / 3 Points</p>
-                <p style="color: var(--color-error);"><strong>Calculation Hint Penalty: -${totalPenalty} Points</strong></p>
-                <p><strong>TOTAL SCORE FOR PROBLEM:</strong> ${currentProblemScore - totalPenalty} / ${maxProblemScore} Points</p>
-                <hr>
-                
-                <p>Net Change in Cash (CFO+CFI+CFF): ${formatCurrency(currentProblem.netChange)}</p>
-                <p>Ending Cash Balance: ${formatCurrency(currentProblem.endingCash)}</p>
-                <p><strong>Your Segment Results:</strong></p>
-                <ul style="list-style: none; padding-left: 0;">${feedbackItems.join('')}</ul>
-                <p>Click "Review Calculation Breakdown" to see the full transaction list and amounts for each segment.</p>
-            `;
-            
-            // Update final total score (already includes classification + adds calculation score)
-            // Penalty was already deducted in showCalculationHint.
-            totalScore += calculationScore; 
-            document.getElementById('score').textContent = totalScore;
-
-            // Update UI feedback
-            solutionFeedbackDiv.innerHTML = finalFeedback;
-            solutionFeedbackDiv.classList.remove('hint-bg');
-            solutionFeedbackDiv.classList.add((currentProblemScore - totalPenalty) > (maxProblemScore / 2) ? 'correct-bg' : 'incorrect-bg');
-        }
-
-        // --- Game Flow Navigation ---
-        function retakeProblem() {
-            if (currentProblemIndex >= PROBLEM_COUNT) return;
-
-            // 1. Remove points gained from the last attempt 
-            totalScore -= currentProblem.classificationScore;
-            totalScore -= currentProblem.calculationScore;
-            
-            // 2. Add the penalty points back, as they were deducted from totalScore. 
-            totalScore += currentProblem.totalPenalty; 
-            
-            // 3. Reset scores and penalty tracker on the problem object for the retake attempt
-            currentProblem.totalPenalty = 0; 
-            currentProblem.classificationScore = 0;
-            currentProblem.calculationScore = 0;
-            
-            // Reset fields on the current problem object for a retake attempt (classification)
-            currentProblem.transactions.forEach(txn => {
-                txn.classified = null;
-                txn.isCorrect = false;
-            });
-            
-            // Reset calculation inputs
-            inputCFO.value = inputCFI.value = inputCFF.value = '';
-            
-            // Load the problem again, which resets the UI
-            loadProblem();
-        }
-
-        function nextProblem() {
-            currentProblemIndex++;
-            loadProblem();
-        }
-        
-        function showResults() {
-            document.getElementById('results-student-name').textContent = studentName;
-            document.getElementById('final-score').textContent = totalScore;
-            showScreen('results-screen');
-        }
-
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            showScreen('start-screen');
+        // Store result for final review
+        allSessionLog.push({
+            question: q.q,
+            userAnswer: choice,
+            correctAnswer: q.a,
+            rule: q.h,
+            correct: isCorrect
         });
-    </script>
+
+        if (isCorrect) {
+            roundScore++; feedback.style.color = "green";
+            feedback.innerHTML = `Correct! ✨<br><span style="font-size:0.8rem">Rule: ${q.h}</span>`;
+        } else {
+            feedback.style.color = "red";
+            feedback.innerHTML = `Wrong. It's ${q.a.toUpperCase()}.<br><span style="font-size:0.8rem">Rule: ${q.h}</span>`;
+        }
+        setTimeout(() => { questionIndex++; nextQuestion(); }, 1800);
+    }
+
+    function finishSession() {
+        document.getElementById('final-player-name').innerText = playerName;
+        document.getElementById('final-total').innerText = sessionScore;
+        showScreen('final-screen');
+    }
+
+    function showReview() {
+        const list = document.getElementById('review-list');
+        list.innerHTML = "";
+        
+        allSessionLog.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = "review-item";
+            const status = item.correct ? '<span class="correct">CORRECT</span>' : '<span class="incorrect">INCORRECT</span>';
+            div.innerHTML = `
+                <div><strong>${index + 1}. ${item.question.replace("____", item.userAnswer.toUpperCase())}</strong></div>
+                <div>Status: ${status}</div>
+                ${!item.correct ? `<div>Correct Answer: <span class="correct">${item.correctAnswer.toUpperCase()}</span></div>` : ''}
+                <div class="rule-tag">B1 Rule: ${item.rule}</div>
+            `;
+            list.appendChild(div);
+        });
+        showScreen('review-screen');
+    }
+</script>
 </body>
 </html>
