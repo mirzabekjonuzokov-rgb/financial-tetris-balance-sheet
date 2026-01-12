@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preposition Quest: Mastery & Review</title>
+    <title>Preposition Quest: Study Edition</title>
     <style>
         :root {
             --primary: #4a90e2; --beginner: #2ecc71; --amateur: #f1c40f;
@@ -17,15 +17,11 @@
         }
         .container {
             background: white; padding: 2.5rem; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4); max-width: 750px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); max-width: 800px;
             width: 95%; text-align: center; max-height: 90vh; overflow-y: auto;
         }
         .screen { display: none; }
         .active { display: block; }
-        input[type="text"] {
-            padding: 12px; width: 80%; border: 2px solid #ddd;
-            border-radius: 8px; font-size: 1rem; margin-bottom: 20px;
-        }
         .btn {
             display: block; width: 100%; padding: 15px; margin: 10px 0;
             border: none; border-radius: 10px; color: white;
@@ -35,7 +31,6 @@
         .bg-beginner { background: var(--beginner); }
         .bg-amateur { background: var(--amateur); color: #333; }
         .bg-pro { background: var(--pro); }
-        .bg-end { background: #636e72; }
         .bg-main { background: var(--primary); }
         .bg-review { background: #9b59b6; }
         
@@ -46,82 +41,78 @@
         }
         .prep-btn:hover { background: var(--primary); color: white; }
         
-        #feedback { height: 50px; margin-top: 20px; font-weight: bold; font-size: 1.1rem; }
-        .stats-box { background: #f1f2f6; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
-        
-        /* Review Table Styles */
-        .review-item { text-align: left; padding: 10px; border-bottom: 1px solid #eee; margin-top: 10px; }
+        .rule-summary {
+            background: #f8f9fa; border-left: 5px solid var(--primary);
+            padding: 15px; text-align: left; margin: 20px 0; font-size: 0.9rem;
+        }
+        .review-item { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
         .correct { color: #27ae60; font-weight: bold; }
         .incorrect { color: #c0392b; font-weight: bold; }
-        .rule-tag { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-top: 5px; color: #555; }
+        input[type="text"] { padding: 12px; width: 80%; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div id="login-screen" class="container screen active">
     <h1>🏆 Preposition Quest</h1>
-    <p>Mixed <strong>In, On, At</strong> challenge. Rules from Destination B1.</p>
+    <p>Practice <strong>In, On, At</strong> with Destination B1 Rules.</p>
     <input type="text" id="player-name" placeholder="Enter Student Name...">
     <button class="btn bg-main" onclick="startLevelSelection()">Login</button>
 </div>
 
 <div id="level-screen" class="container screen">
     <h2 id="welcome-msg"></h2>
-    <div class="stats-box">Cumulative Score: <span id="session-total">0</span></div>
+    <div class="rule-summary">
+        <strong>💡 Quick Mind Map:</strong><br>
+        🔼 <strong>IN:</strong> Big/General (Years, Countries, Rooms)<br>
+        ⏏️ <strong>ON:</strong> Specific/Surface (Days, Streets, Islands)<br>
+        🔽 <strong>AT:</strong> Precise/Point (Clock times, Addresses, Activities)
+    </div>
     <button class="btn bg-beginner" onclick="startGame('beginner')">Level 1: Beginner Mix</button>
     <button class="btn bg-amateur" onclick="startGame('amateur')">Level 2: Amateur Mix</button>
     <button class="btn bg-pro" onclick="startGame('pro')">Level 3: Pro Mix</button>
-    <hr>
-    <button class="btn bg-end" onclick="finishSession()">🔚 End Session & Calculate Score</button>
+    <button class="btn bg-review" onclick="finishSession()" style="margin-top:20px;">🔚 End & Review All</button>
 </div>
 
 <div id="game-screen" class="container screen">
     <h3 id="current-level-tag"></h3>
-    <div id="question-box" style="font-size: 1.4rem; margin: 20px 0;"></div>
+    <div id="question-box" style="font-size: 1.4rem; margin: 30px 0;"></div>
     <div class="options">
         <button class="prep-btn" onclick="handleGuess('in')">IN</button>
         <button class="prep-btn" onclick="handleGuess('on')">ON</button>
         <button class="prep-btn" onclick="handleGuess('at')">AT</button>
     </div>
-    <div id="feedback"></div>
+    <div id="feedback" style="margin-top: 20px; font-weight: bold; height: 40px;"></div>
 </div>
 
 <div id="round-result-screen" class="container screen">
     <h2>Level Complete!</h2>
     <p id="round-score-text" style="font-size: 1.5rem;"></p>
-    <button class="btn bg-main" onclick="showScreen('level-screen')">Back to Level Selection</button>
+    <button class="btn bg-main" onclick="showScreen('level-screen')">Back to Map</button>
 </div>
 
 <div id="final-screen" class="container screen">
-    <h1>Session Complete</h1>
+    <h1>Final Scoreboard</h1>
     <h2 id="final-player-name"></h2>
-    <div style="font-size: 4rem; color: var(--primary); margin: 10px 0;" id="final-total">0</div>
-    <p>Total Points Collected</p>
-    <button class="btn bg-review" onclick="showReview()">🔍 Detailed Question Review</button>
-    <button class="btn bg-main" onclick="location.reload()">Start New Session</button>
-</div>
-
-<div id="review-screen" class="container screen">
-    <h2>Question Review</h2>
-    <p>Review your answers and the Destination B1 rules below.</p>
-    <div id="review-list"></div>
-    <button class="btn bg-main" onclick="showScreen('final-screen')" style="margin-top:20px;">Back to Final Score</button>
+    <div style="font-size: 4rem; color: var(--primary);" id="final-total">0</div>
+    <div id="review-area"></div>
+    <button class="btn bg-main" onclick="location.reload()">New Session</button>
 </div>
 
 <script>
     let playerName = "", sessionScore = 0, currentQuestions = [], questionIndex = 0, roundScore = 0;
-    let allSessionLog = []; // Stores every question and answer for final review
+    let allSessionLog = [];
 
     const database = {
         beginner: [
-            { q: "Paris is wonderful ____ April.", a: "in", h: "Months" },
-            { q: "The movie starts ____ 7:00.", a: "at", h: "Clock times" },
-            { q: "I'll be home ____ Sunday.", a: "on", h: "Days" },
-            { q: "I first went to Russia ____ 2005.", a: "in", h: "Years" },
-            { q: "The apple was ____ the table.", a: "on", h: "Surfaces" },
-            { q: "Let's meet ____ the park.", a: "in", h: "Enclosed areas" },
+            { q: "Paris is wonderful ____ April.", a: "in", h: "Months (General Time)" },
+            { q: "The movie starts ____ 7:00.", a: "at", h: "Clock times (Precise Time)" },
+            { q: "I'll be home ____ Sunday.", a: "on", h: "Days (Specific Time)" },
+            { q: "I first went to Russia ____ 2005.", a: "in", h: "Years (General Time)" },
+            { q: "The apple was ____ the table.", a: "on", h: "Surfaces (Specific Place)" },
+            { q: "Let's meet ____ the park.", a: "in", h: "Enclosed areas (General Place)" },
             { q: "Tim was waiting ____ the car.", a: "in", h: "Enclosed space" },
-            { q: "Meet me ____ the entrance.", a: "at", h: "Specific point" },
+            { q: "Meet me ____ the entrance.", a: "at", h: "Specific point (Precise Place)" },
             { q: "Head to the theater ____ Second Street.", a: "on", h: "Street names" },
             { q: "Your passport is ____ the drawer.", a: "in", h: "Inside an object" },
             { q: "I'll see you ____ the morning.", a: "in", h: "Parts of day" },
@@ -131,37 +122,37 @@
             { q: "Sharon is ____ the travel agent's.", a: "in", h: "Inside a building" }
         ],
         amateur: [
-            { q: "My birthday is ____ 19th March.", a: "on", h: "Dates" },
+            { q: "My birthday is ____ 19th March.", a: "on", h: "Specific Dates" },
             { q: "We're flying ____ Tuesday morning.", a: "on", h: "Specific day + part of day" },
-            { q: "Last year, we stayed ____ Mykonos.", a: "on", h: "Islands" },
+            { q: "Last year, we stayed ____ Mykonos.", a: "on", h: "Islands (Special Rule)" },
             { q: "What's life like ____ the desert?", a: "in", h: "Large areas/regions" },
             { q: "I'll meet you ____ the bus stop.", a: "at", h: "Point on a journey" },
-            { q: "There are Italian phrases ____ page 97.", a: "on", h: "Pages" },
-            { q: "I have a lot of fun ____ my birthday.", a: "on", h: "Specific holidays" },
+            { q: "There are Italian phrases ____ page 97.", a: "on", h: "Pages (Special Rule)" },
+            { q: "I have a lot of fun ____ my birthday.", a: "on", h: "Specific holidays/events" },
             { q: "I am ____ the middle of my work.", a: "in", h: "Phrase: in the middle of" },
             { q: "Turn ____ the left at the light.", a: "on", h: "Direction phrases" },
             { q: "Meet me ____ the first floor.", a: "on", h: "Floor levels" },
-            { q: "What are you doing ____ Christmas?", a: "at", h: "Holiday periods" },
+            { q: "What are you doing ____ Christmas?", a: "at", h: "Holiday periods (Duration)" },
             { q: "I am very busy ____ the moment.", a: "at", h: "Phrase: at the moment" },
             { q: "I've left the tickets ____ the living room.", a: "in", h: "Rooms" },
             { q: "I can't see well ____ night.", a: "at", h: "Phrase: at night" },
             { q: "The tickets are ____ the counter.", a: "on", h: "Surfaces" }
         ],
         pro: [
-            { q: "My cousin lives ____ 132 London Road.", a: "at", h: "Specific address" },
-            { q: "John is ____ the cinema.", a: "at", h: "Buildings (activity inside)" },
-            { q: "Rania isn't here. She's ____ a party.", a: "at", h: "Activities" },
+            { q: "My cousin lives ____ 132 London Road.", a: "at", h: "Specific address (Number + Street)" },
+            { q: "John is ____ the cinema.", a: "at", h: "Buildings (Focus on activity)" },
+            { q: "Rania isn't here. She's ____ a party.", a: "at", h: "Specific Activities" },
             { q: "I should be home ____ a week or two.", a: "in", h: "Unspecific time span" },
             { q: "Look ____ the bottom of the page.", a: "at", h: "Relative positions" },
             { q: "Who is standing ____ the door?", a: "at", h: "Precise point" },
-            { q: "We're spending our holiday ____ the countryside.", a: "in", h: "Large areas around us" },
-            { q: "There's a bus ____ ten past three.", a: "at", h: "Clock times" },
+            { q: "We're spending our holiday ____ the countryside.", a: "in", h: "Large areas all around us" },
+            { q: "There's a bus ____ ten past three.", a: "at", h: "Exact Clock times" },
             { q: "What's it like ____ the North Pole?", a: "at", h: "Exact places" },
             { q: "Snow falls ____ Christmas time.", a: "at", h: "Holiday periods" },
             { q: "Put the stamp ____ the top-right corner.", a: "in", h: "Inside a corner area" },
-            { q: "Wait ____ the entrance until I arrive.", a: "at", h: "Specific point" },
+            { q: "Wait ____ the entrance until I arrive.", a: "at", h: "Target point" },
             { q: "Is there anything good ____ television tonight?", a: "on", h: "Media/Screens" },
-            { q: "I'll be ready ____ an hour.", a: "in", h: "Time phrase" },
+            { q: "I'll be ready ____ an hour.", a: "in", h: "Future time phrase" },
             { q: "The kids are playing ____ the beach.", a: "on", h: "Phrase: on the beach" }
         ]
     };
@@ -181,7 +172,7 @@
     function startGame(level) {
         currentQuestions = [...database[level]].sort(() => Math.random() - 0.5);
         questionIndex = 0; roundScore = 0;
-        document.getElementById('current-level-tag').innerText = `Challenge Mix: ${level.toUpperCase()}`;
+        document.getElementById('current-level-tag').innerText = `Difficulty: ${level.toUpperCase()}`;
         showScreen('game-screen');
         nextQuestion();
     }
@@ -189,62 +180,48 @@
     function nextQuestion() {
         if (questionIndex < currentQuestions.length) {
             const q = currentQuestions[questionIndex];
-            document.getElementById('question-box').innerHTML = q.q.replace("____", "<span style='color:#4a90e2; border-bottom: 2px solid'>____</span>");
+            document.getElementById('question-box').innerHTML = q.q.replace("____", "<span style='color:var(--primary); text-decoration: underline'>____</span>");
             document.getElementById('feedback').innerText = "";
         } else {
             sessionScore += roundScore;
-            document.getElementById('round-score-text').innerText = `Round Score: ${roundScore} / ${currentQuestions.length}`;
+            document.getElementById('round-score-text').innerText = `Level Score: ${roundScore} / ${currentQuestions.length}`;
             showScreen('round-result-screen');
         }
     }
 
     function handleGuess(choice) {
         const q = currentQuestions[questionIndex];
+        const isCorrect = (choice === q.a);
+        allSessionLog.push({ q: q.q, user: choice, correct: q.a, rule: q.h, status: isCorrect });
+
         const feedback = document.getElementById('feedback');
-        let isCorrect = (choice === q.a);
-
-        // Store result for final review
-        allSessionLog.push({
-            question: q.q,
-            userAnswer: choice,
-            correctAnswer: q.a,
-            rule: q.h,
-            correct: isCorrect
-        });
-
         if (isCorrect) {
             roundScore++; feedback.style.color = "green";
-            feedback.innerHTML = `Correct! ✨<br><span style="font-size:0.8rem">Rule: ${q.h}</span>`;
+            feedback.innerText = "Correct! ✨";
         } else {
             feedback.style.color = "red";
-            feedback.innerHTML = `Wrong. It's ${q.a.toUpperCase()}.<br><span style="font-size:0.8rem">Rule: ${q.h}</span>`;
+            feedback.innerText = `Incorrect. The answer was ${q.a.toUpperCase()}.`;
         }
-        setTimeout(() => { questionIndex++; nextQuestion(); }, 1800);
+        setTimeout(() => { questionIndex++; nextQuestion(); }, 1200);
     }
 
     function finishSession() {
         document.getElementById('final-player-name').innerText = playerName;
         document.getElementById('final-total').innerText = sessionScore;
-        showScreen('final-screen');
-    }
-
-    function showReview() {
-        const list = document.getElementById('review-list');
-        list.innerHTML = "";
+        const reviewArea = document.getElementById('review-area');
+        reviewArea.innerHTML = "<h3>Review Your Answers:</h3>";
         
-        allSessionLog.forEach((item, index) => {
+        allSessionLog.forEach(item => {
             const div = document.createElement('div');
             div.className = "review-item";
-            const status = item.correct ? '<span class="correct">CORRECT</span>' : '<span class="incorrect">INCORRECT</span>';
             div.innerHTML = `
-                <div><strong>${index + 1}. ${item.question.replace("____", item.userAnswer.toUpperCase())}</strong></div>
-                <div>Status: ${status}</div>
-                ${!item.correct ? `<div>Correct Answer: <span class="correct">${item.correctAnswer.toUpperCase()}</span></div>` : ''}
-                <div class="rule-tag">B1 Rule: ${item.rule}</div>
+                <div><strong>${item.q.replace("____", item.user.toUpperCase())}</strong></div>
+                <div class="${item.status ? 'correct' : 'incorrect'}">${item.status ? '✓ Correct' : '✗ Incorrect (Correct: ' + item.correct.toUpperCase() + ')'}</div>
+                <div style="font-size:0.8rem; color:#666 italic">B1 Rule: ${item.rule}</div>
             `;
-            list.appendChild(div);
+            reviewArea.appendChild(div);
         });
-        showScreen('review-screen');
+        showScreen('final-screen');
     }
 </script>
 </body>
